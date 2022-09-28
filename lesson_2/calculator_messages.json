@@ -1,0 +1,11 @@
+{
+  "message": {
+  "intro" : "Welcome to Calculator",
+  "firstNum" : "What's the first number?",
+  "secondNum" : "What's the second number?",
+  "operation" : "What operation would you like to perform?",
+  "invalidNum" : "Hmm that doesn't look like a valid number",
+  "invalidOp" : "Must choose 1, 2, 3, or 4",
+  "newOp" : "Would you like to perform another operation? (y/n)"
+  } 
+}
