@@ -1,32 +1,66 @@
 const readline = require('readline-sync');
 
-let prompt = (message) => {
+function prompt (message) {
   console.log(`==>  ${message}`);
 }
 
-prompt("What is the loan amount?");
-
-let loanAmount = readline.question();
-
-while (typeof(loanAmount) !== Number) {
-  prompt("That is not a valid amount.");
-  loanAmount = readline.question();
+function isInvalidNumber(number) {
+  //Number.isNaN() needed for non numeric values
+  return number.trim() === '' || Number(number) < 0 || Number.isNaN(Number(number));
 }
 
-prompt("What is the APR?");
+prompt("Welcome to Mortgage Calculator!");
 
-//Explicitly typecast this as a float
-let APR = parseFloat(readline.question() / 100);
+while (true) {
 
-prompt("What is the loan duration, in years?");
+  prompt('----------------------------');
 
-let loanTime = readline.question();
+  prompt("What is the loan amount?");
 
-let monthlyInterest = APR / 12;
+  let loanAmount = readline.question();
 
-let loanDuration = loanTime * 12;
+  while (isInvalidNumber(loanAmount)) {
+    prompt("Must enter a positive number");
+    loanAmount = readline.question();
+  }
 
-let monthlyPayment = loanAmount * (monthlyInterest / 
-  (1 - Math.pow((1 + monthlyInterest), (-loanDuration))));
+  prompt("What is the interest rate?");
+  prompt("(Example: 5 for 5% or 2.5 for 2.5%)");
+  
+  let interestRate = readline.question();
 
-console.log(monthlyPayment);
+  while (isInvalidNumber(interestRate)) {
+    prompt('Must enter a positive number');
+    interestRate = readline.question();
+  }
+
+  prompt("What is the loan duration, in years?");
+
+  let loanTime = readline.question();
+
+  while (isInvalidNumber(loanTime)) {
+    prompt('Must enter a positive number');
+    loanTime = readline.question();
+  }
+
+  let annualInterestRate = Number(interestRate) / 100;
+
+  let monthlyInterest = Number(annualInterestRate) / 12;
+
+  let loanDuration = Number(loanTime) * 12;
+
+  let monthlyPayment = Number(loanAmount) *
+                  (monthlyInterest /
+                  (1 - Math.pow((1 + monthlyInterest), (-Number(loanDuration)))));
+
+  prompt(`Your monthly payment is :$${monthlyPayment.toFixed(2)}`);
+
+  prompt("Another calculation?");
+  let answer = readline.question().toLowerCase();
+  while (answer[0] !== 'n' && answer[0] !== 'y') {
+    prompt("Please enter 'y' or 'n'.");
+    answer = readline.question().toLowerCase();
+  }
+
+  if (answer[0] === 'n') break;
+}
