@@ -3,15 +3,17 @@ const readline = require('readline-sync');
 const INITIAL_MARKER = ' ';
 const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
+const GAMES_TO_WIN = 5;
 
 function prompt(message) {
   console.log(`==> ${message}`)
 }
 
-function displayBoard(board) {
+function displayBoard(board, playerWins, computerWins) {
   console.clear();
 
   console.log(`You are ${HUMAN_MARKER}. Computer is ${COMPUTER_MARKER}`);
+  console.log(`Player score: ${playerWins} Computer score: ${computerWins}`);
 
   console.log('');
   console.log('     |     |');
@@ -85,7 +87,7 @@ function playerChoosesSquare(board) {
   let square;
 
   while (true) {
-    prompt(`Choose a square (${emptySquares(board).join(', ')}):`);
+    prompt(`Choose a square (${joinOr(emptySquares(board))}):`);
     square = readline.question().trim(); //removes spaces from input
 
     if (emptySquares(board).includes(square)) break; // one line condition --> else prompt
@@ -111,7 +113,7 @@ function joinOr(arr, delimeter=', ', join='or') {
     if (arr.length === 1) {
       return String(arr[0]);
     }
-    else if (arr.legnth === 2) {
+    else if (arr.length === 2) {
       return String(arr[0]) + ' ' + join + ' ' + String(arr[1]);
     }
 
@@ -130,31 +132,55 @@ function joinOr(arr, delimeter=', ', join='or') {
 
   return str;
 }
-
 while (true) {
-  //Create empty board for the start of the game
-  let board = initializeBoard();
 
-  while (true)  {
+  let computerWins = 0;
+  let playerWins = 0;
+
+  while (computerWins < 5 && playerWins < 5) {
+
+    //Create empty board for the start of the game
+    let board = initializeBoard();
+
+    while (true)  {
+
+      displayBoard(board, playerWins, computerWins);
+
+      playerChoosesSquare(board);
+      //Use this if call to prevent "double winner" condition
+      if (someoneWon(board) || boardFull(board)) break;
+      computerChoosesSquare(board);
+
+      if (someoneWon(board) || boardFull(board)) break;
+    }
 
     displayBoard(board);
 
-    playerChoosesSquare(board);
-    //Use this if call to prevent "double winner" condition
-    if (someoneWon(board) || boardFull(board)) break;
-    computerChoosesSquare(board);
+    if (someoneWon(board)) {
+      prompt(`${detectWinner(board)} won!`);
+      if (detectWinner(board) === "Computer") {
+        computerWins += 1;
+      }
+      else if (detectWinner(board) === "Player") {
+        playerWins += 1;
+      }
+    }
 
-    if (someoneWon(board) || boardFull(board)) break;
+    else {
+      prompt("It's a tie!");
+    }
+
+    
   }
+  
+  console.clear();
 
-  displayBoard(board);
-
-  if (someoneWon(board)) {
-    prompt(`${detectWinner(board)} won!`);
+  if (playerWins > computerWins) {
+    prompt("Player wins the match!")
   }
 
   else {
-    prompt("It's a tie!");
+    prompt("Computer wins the match!");
   }
 
   prompt('Play again? (y or n)');
