@@ -104,6 +104,33 @@ function computerChoosesSquare(board) {
   board[square] = COMPUTER_MARKER;
 }
 
+function joinOr(arr, delimeter=', ', join='or') {
+  let str = "";
+
+  if (arr.length < 3) {
+    if (arr.length === 1) {
+      return String(arr[0]);
+    }
+    else if (arr.legnth === 2) {
+      return String(arr[0]) + ' ' + join + ' ' + String(arr[1]);
+    }
+
+  }
+  
+  for (let i = 0; i < arr.length; i++) {
+    if (i === arr.length - 1) {
+      str = str.concat(join, ' ', String(arr[i]));
+    }
+
+    else {
+      str = str.concat(String(arr[i]), delimeter);
+    }
+
+  }
+
+  return str;
+}
+
 while (true) {
   //Create empty board for the start of the game
   let board = initializeBoard();
