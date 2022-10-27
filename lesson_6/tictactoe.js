@@ -118,6 +118,10 @@ function joinOr(arr, delimeter=', ', join='or') {
     }
 
   }
+
+  function detectThreat(borad) {
+    
+  }
   
   for (let i = 0; i < arr.length; i++) {
     if (i === arr.length - 1) {
