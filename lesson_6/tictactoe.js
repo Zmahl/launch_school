@@ -209,6 +209,10 @@ function chooseFirstPlayer() {
     }
   }
 
+  prompt(`${FIRST_TURN[currentPlayer]} will go first! Press any key to continue`)
+  readline.keyIn();
+}
+
 
 function alternatePlayer(currentPlayer) {
   if (currentPlayer === 'c') {
@@ -216,11 +220,9 @@ function alternatePlayer(currentPlayer) {
   } else return 'c';
 }
 
-}
-
 function determineScores(board) {
   if (someoneWon(board)) {
-    prompt(`${detectWinner(board)} won!`);
+    prompt(`${detectWinner(board)} won! Press any key to go to next game...`);
     if (detectWinner(board) === "Computer") {
       computerWins += 1;
     }
@@ -232,6 +234,7 @@ function determineScores(board) {
   else {
     prompt("It's a tie!");
   }
+  readline.keyIn();
 }
 
 function chooseSquare(board, currentPlayer) {
@@ -265,9 +268,7 @@ while (true) {
 
     //Create empty board for the start of the game
     let board = initializeBoard();
-    playGame();
-
-    playGame();
+    playGame(board);
 
     displayBoard(board);
 
