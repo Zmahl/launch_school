@@ -4,12 +4,26 @@ const INITIAL_MARKER = ' ';
 const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
 const GAMES_TO_WIN = 5;
+const FIRST_TURN = {
+  'p': "Player",
+  'c': "Computer"
+};
+
+const WINNING_LINES = [
+  [1, 2, 3], [4, 5, 6], [7, 8, 9], // rows
+  [1, 4, 7], [2, 5, 8], [3, 6, 9], // columns
+  [1, 5, 9], [3, 5, 7]             // diagonals
+]
+let playerWins = 0;
+let computerWins = 0;
+let currentPlayer = null;
+
 
 function prompt(message) {
   console.log(`==> ${message}`)
 }
 
-function displayBoard(board, playerWins, computerWins) {
+function displayBoard(board) {
   console.clear();
 
   console.log(`You are ${HUMAN_MARKER}. Computer is ${COMPUTER_MARKER}`);
@@ -40,15 +54,10 @@ function someoneWon(board) {
 }
 
 function detectWinner(board) {
-  let winningLines = [
-    [1, 2, 3], [4, 5, 6], [7, 8, 9], // rows
-    [1, 4, 7], [2, 5, 8], [3, 6, 9], // columns
-    [1, 5, 9], [3, 5, 7]             // diagonals
-  ]
 
-  for (let line = 0; line < winningLines.length; line++) {
+  for (let line = 0; line < WINNING_LINES.length; line++) {
     //this syntax is 'destucturing' array into these 3 values
-    let [ sq1, sq2, sq3 ] = winningLines[line];
+    let [ sq1, sq2, sq3 ] = WINNING_LINES[line];
   
     if (
       board[sq1] === HUMAN_MARKER &&
@@ -99,11 +108,38 @@ function playerChoosesSquare(board) {
 }
 
 function computerChoosesSquare(board) {
+  let square;
 
-  let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
+  //set condition for handling offense
+  for (let index = 0; index < WINNING_LINES.length; index++) {
+    let line = WINNING_LINES[index];
+    square = detectThreatSquare(line, board, COMPUTER_MARKER);
+    if (square) break;
+  }
 
-  let square = emptySquares(board)[randomIndex];
+  if(!square) {
+  //set condition for handling defense
+  for (let index = 0; index < WINNING_LINES.length; index++) {
+    let line = WINNING_LINES[index];
+    square = detectThreatSquare(line, board, HUMAN_MARKER);
+    if (square) break;
+  }
+
+  }
+  //Always pick middle square if available
+  if(!square) {
+    if (board['5'] === INITIAL_MARKER) {
+      square = '5';
+    }
+  }
+
+  if (!square) {
+    let randomIndex = Math.floor(Math.random() * emptySquares(board).length);
+    square = emptySquares(board)[randomIndex];
+  }
+
   board[square] = COMPUTER_MARKER;
+
 }
 
 function joinOr(arr, delimeter=', ', join='or') {
@@ -119,9 +155,6 @@ function joinOr(arr, delimeter=', ', join='or') {
 
   }
 
-  function detectThreat(borad) {
-    
-  }
   
   for (let i = 0; i < arr.length; i++) {
     if (i === arr.length - 1) {
@@ -136,44 +169,111 @@ function joinOr(arr, delimeter=', ', join='or') {
 
   return str;
 }
+
+function detectThreatSquare(line, board, marker) {
+  let markersInLine = line.map(square => board[square]);
+
+  if (markersInLine.filter(val => val === marker).length === 2) {
+    let unusedSquare = line.find(square => board[square] === ' ');
+    if (unusedSquare !== undefined) {
+      return unusedSquare
+    }
+  }
+
+  return null;
+}
+
+function setUpGame() {
+  console.clear();
+  playerScore = 0
+  computerScore = 0;
+  currentPlayer = null;
+  prompt("Welcome to Tic-tac-toe!")
+}
+
+function chooseFirstPlayer() {
+  prompt("Who will go first this game? Player, Computer or Random? (p, c, r)");
+  currentPlayer = readline.question();
+  if (currentPlayer !== 'p' && currentPlayer !== 'c' && currentPlayer !== 'r') {
+    prompt("Invalid choice. Choose 'p' for Player, 'c' for Computer, or 'r' for Random");
+    currentPlayer = readline.question();
+  }
+  
+  if (currentPlayer === 'r') {
+    let result = Math.floor(Math.random() * 2);
+    if (result === 1) {
+      currentPlayer = "p";
+    }
+    else {
+      currentPlayer = "c";
+    }
+  }
+
+
+function alternatePlayer(currentPlayer) {
+  if (currentPlayer === 'c') {
+    return 'p';
+  } else return 'c';
+}
+
+}
+
+function determineScores(board) {
+  if (someoneWon(board)) {
+    prompt(`${detectWinner(board)} won!`);
+    if (detectWinner(board) === "Computer") {
+      computerWins += 1;
+    }
+    else if (detectWinner(board) === "Player") {
+      playerWins += 1;
+    }
+  }
+
+  else {
+    prompt("It's a tie!");
+  }
+}
+
+function chooseSquare(board, currentPlayer) {
+  if (currentPlayer === 'c') {
+    return computerChoosesSquare(board);
+  }
+
+  else {
+    return playerChoosesSquare(board);
+  }
+}
+
+function playGame(board) {
+  while (true)  {      
+      
+    displayBoard(board);
+    
+    chooseSquare(board, currentPlayer);
+    currentPlayer = alternatePlayer(currentPlayer);
+
+    if (someoneWon(board) || boardFull(board)) break;
+  }
+}
+
 while (true) {
 
-  let computerWins = 0;
-  let playerWins = 0;
+  setUpGame();
+  chooseFirstPlayer();
 
-  while (computerWins < 5 && playerWins < 5) {
+  while (true) {
 
     //Create empty board for the start of the game
     let board = initializeBoard();
+    playGame();
 
-    while (true)  {
-
-      displayBoard(board, playerWins, computerWins);
-
-      playerChoosesSquare(board);
-      //Use this if call to prevent "double winner" condition
-      if (someoneWon(board) || boardFull(board)) break;
-      computerChoosesSquare(board);
-
-      if (someoneWon(board) || boardFull(board)) break;
-    }
+    playGame();
 
     displayBoard(board);
 
-    if (someoneWon(board)) {
-      prompt(`${detectWinner(board)} won!`);
-      if (detectWinner(board) === "Computer") {
-        computerWins += 1;
-      }
-      else if (detectWinner(board) === "Player") {
-        playerWins += 1;
-      }
-    }
+    determineScores(board);
 
-    else {
-      prompt("It's a tie!");
-    }
-
+    if (playerWins === GAMES_TO_WIN || computerWins === GAMES_TO_WIN) break;
     
   }
   
@@ -188,8 +288,14 @@ while (true) {
   }
 
   prompt('Play again? (y or n)');
-  let answer = readline.question().toLowerCase()[0];
-  if (answer !== 'y') break;
+  let answer = readline.question().toLowerCase();
+  while (answer !== 'y' && answer !== 'n') {
+    prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.S");
+    answer = readline.question().toLowerCase();
+    console.log(answer);
+  }
+
+  if (answer === 'n') break;
 }
 
 prompt('Thanks for playing Tic Tac Toe');
