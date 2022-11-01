@@ -3,7 +3,6 @@ const readline = require('readline-sync');
 const SUIT = ["H", "C", "S", "D"];
 const CARDS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
-const ACE_VALUES = [1, 11];
 const STARTING_HAND_SIZE = 2;
 
 let deck = [];
@@ -24,6 +23,23 @@ function prompt(message) {
   console.log(`==> ${message}`)
 }
 
+function total(somePlayer) {
+  let total = 0;
+
+  for (c in somePlayer.card) {
+
+  }
+
+
+}
+
+function shuffle(array) {
+  for (let index = array.length - 1; index > 0; index--) {
+    let otherIndex = Math.floor(Math.random() * (index + 1)); // 0 to index
+    [array[index], array[otherIndex]] = [array[otherIndex], array[index]]; // swap elements
+  }
+}
+
 function initializeDeck() {
   for (let i = 0; i < CARDS.length; i++) {
     for (let j = 0; j < SUIT.length; j++) {
@@ -37,7 +53,7 @@ function initializeDeck() {
       }
 
       else if (card.value === "A") {
-        card.weight = ACE_VALUES;
+        card.weight = 11;
       }
 
       deck.push(card);
@@ -80,6 +96,16 @@ function dealerDraw() {
   if (total < 17) {
     drawCard(computerHand);
   }
+}
+
+function isBust(somePlayer) {
+  let total = 0;
+
+  for (c in somePlayer) {
+    total += 0;
+  }
+
+  return total > 21;
 }
 
 
