@@ -23,13 +23,14 @@ function prompt(message) {
   console.log(`==> ${message}`)
 }
 
-function total(somePlayer) {
+function calculateTotal(somePlayer) {
   let total = 0;
 
-  for (c in somePlayer.card) {
-
+  for (c in somePlayer.cards) {
+    total += c.weight;
   }
 
+  return total;
 
 }
 
@@ -76,6 +77,7 @@ function dealCards() {
     computerHand.cards.push(drawCard());
   }
 }
+
 initializeDeck();
 dealCards();
 console.log(deck);
@@ -88,10 +90,8 @@ function greetPlayer() {
 }
 
 function dealerDraw() {
-  let total = 0;
-  for (c in computerHand) {
-    total += c.weight;
-  }
+
+  let total = calculateTotal
 
   if (total < 17) {
     drawCard(computerHand);
@@ -99,23 +99,61 @@ function dealerDraw() {
 }
 
 function isBust(somePlayer) {
-  let total = 0;
 
-  for (c in somePlayer) {
-    total += 0;
-  }
+  let total = calculateTotal(somePlayer);
 
   return total > 21;
 }
 
+function playerTurn() {
+  
+}
+
+function computerTurn() {
+  
+}
+
 
 while (true) {
+
+  let winner = null;
   greetPlayer();
   initializeDeck();
   dealCards();
 
-  break;
+  playerTurn();
 
+  if (isBust(playerHand)) {
+    winner = 'Computer';
+  }
 
+  computerTurn();
+
+  if (isBust(computerHand)) {
+    winner = 'Player';
+  }
+
+  if (!winner) {
+    winner = findWinner();
+  }
+
+  prompt(`${winner} won the round!`)
+  
+  prompt("Would you like to play again? (y/n)");
+
+  let answer = readline.question().toLowerCase();
+
+  while (answer !== 'y' && answer !== 'n') {
+    prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.");
+    answer = readline.question().toLowerCase();
+  }
+
+  if (answer !== 'y') {
+    break;
+  }
+  
 
 }
+
+
+prompt("Thank you for playing 21!");

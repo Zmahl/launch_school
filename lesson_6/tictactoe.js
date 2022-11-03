@@ -281,7 +281,7 @@ while (true) {
   console.clear();
 
   if (playerWins > computerWins) {
-    prompt("Player wins the match!")
+    prompt("Player wins the match!");
   }
 
   else {
@@ -291,7 +291,7 @@ while (true) {
   prompt('Play again? (y or n)');
   let answer = readline.question().toLowerCase();
   while (answer !== 'y' && answer !== 'n') {
-    prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.S");
+    prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.");
     answer = readline.question().toLowerCase();
     console.log(answer);
   }
