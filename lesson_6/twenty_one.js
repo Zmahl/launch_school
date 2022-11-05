@@ -4,6 +4,7 @@ const SUIT = ["H", "C", "S", "D"];
 const CARDS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 const STARTING_HAND_SIZE = 2;
+const DEALER_LIMIT = 17;
 
 let deck = [];
 let playerHand = {
@@ -78,11 +79,6 @@ function dealCards() {
   }
 }
 
-initializeDeck();
-dealCards();
-console.log(deck);
-console.log(playerHand.cards, computerHand.cards);
-
 function greetPlayer() {
   prompt("Welcome to 21! The objective of the game is to get as close to 21 as possible.");
   prompt("Are you ready to play?");
@@ -93,7 +89,7 @@ function dealerDraw() {
 
   let total = calculateTotal
 
-  if (total < 17) {
+  if (total < DEALER_LIMIT) {
     drawCard(computerHand);
   }
 }
@@ -119,40 +115,46 @@ while (true) {
   let winner = null;
   greetPlayer();
   initializeDeck();
-  dealCards();
 
-  playerTurn();
+  while (true) {
 
-  if (isBust(playerHand)) {
-    winner = 'Computer';
+  
+    dealCards();
+
+    playerTurn();
+
+    if (isBust(playerHand)) {
+      winner = 'Computer';
+    }
+
+    computerTurn();
+
+    if (isBust(computerHand)) {
+      winner = 'Player';
+    }
+
+    if (!winner) {
+      winner = findWinner();
+    }
+
+    prompt(`${winner} won the round!`);
+    
+    break;
+    
   }
-
-  computerTurn();
-
-  if (isBust(computerHand)) {
-    winner = 'Player';
-  }
-
-  if (!winner) {
-    winner = findWinner();
-  }
-
-  prompt(`${winner} won the round!`)
   
   prompt("Would you like to play again? (y/n)");
 
-  let answer = readline.question().toLowerCase();
+    let answer = readline.question().toLowerCase();
 
-  while (answer !== 'y' && answer !== 'n') {
-    prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.");
-    answer = readline.question().toLowerCase();
-  }
+    while (answer !== 'y' && answer !== 'n') {
+      prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.");
+      answer = readline.question().toLowerCase();
+    }
 
-  if (answer !== 'y') {
-    break;
-  }
-  
-
+    if (answer !== 'y') {
+      break;
+    }
 }
 
 
