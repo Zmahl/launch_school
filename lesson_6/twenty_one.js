@@ -87,11 +87,12 @@ function greetPlayer() {
 
 function dealerDraw() {
 
-  let total = calculateTotal
+  let total = calculateTotal();
 
   if (total < DEALER_LIMIT) {
     drawCard(computerHand);
   }
+  
 }
 
 function isBust(somePlayer) {
@@ -102,11 +103,18 @@ function isBust(somePlayer) {
 }
 
 function playerTurn() {
-  
+  while(true) {
+    console.log("hit or stay?");
+    let answer = readline.question();
+    if (answer === 'stay' || isBust()) break;
+  }
 }
 
 function computerTurn() {
-  
+  let total = calculateTotal();
+  while(true) {
+    dealerDraw();
+  }
 }
 
 
@@ -123,22 +131,12 @@ while (true) {
 
     playerTurn();
 
-    if (isBust(playerHand)) {
-      winner = 'Computer';
-    }
-
     computerTurn();
 
-    if (isBust(computerHand)) {
-      winner = 'Player';
-    }
-
-    if (!winner) {
-      winner = findWinner();
-    }
+    winner = findWinner();
 
     prompt(`${winner} won the round!`);
-    
+
     break;
     
   }
