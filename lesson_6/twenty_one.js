@@ -10,13 +10,15 @@ let playerHand = {
   "cards": [],
   "hasAce": false,
   "has21": false,
-  "over21": false
+  "over21": false,
+  "total": 0
 };
 let computerHand = {
   "cards": [],
   "hasAce": false,
   "has21": false,
-  "over21": false
+  "over21": false,
+  "total": 0
 };
 
 function prompt(message) {
@@ -78,11 +80,6 @@ function dealCards() {
   }
 }
 
-initializeDeck();
-dealCards();
-console.log(deck);
-console.log(playerHand.cards, computerHand.cards);
-
 function greetPlayer() {
   prompt("Welcome to 21! The objective of the game is to get as close to 21 as possible.");
   prompt("Are you ready to play?");
@@ -91,7 +88,7 @@ function greetPlayer() {
 
 function dealerDraw() {
 
-  let total = calculateTotal
+  let total = calculateTotal()
 
   if (total < 17) {
     drawCard(computerHand);
@@ -113,12 +110,22 @@ function computerTurn() {
   
 }
 
+function hit(participant) {
+  if (participant === 'Player') {
+    playerHand.cards.push(drawCard());
+  }
+  else {
+
+  }
+}
+
 
 while (true) {
 
   let winner = null;
   greetPlayer();
   initializeDeck();
+  shuffle()
   dealCards();
 
   playerTurn();
