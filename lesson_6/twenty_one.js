@@ -4,6 +4,7 @@ const SUIT = ["H", "C", "S", "D"];
 const CARDS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
 
 const STARTING_HAND_SIZE = 2;
+const DEALER_LIMIT = 17;
 
 let deck = [];
 let playerHand = {
@@ -88,11 +89,12 @@ function greetPlayer() {
 
 function dealerDraw() {
 
-  let total = calculateTotal()
+  let total = calculateTotal();
 
-  if (total < 17) {
+  if (total < DEALER_LIMIT) {
     drawCard(computerHand);
   }
+  
 }
 
 function isBust(somePlayer) {
@@ -103,11 +105,18 @@ function isBust(somePlayer) {
 }
 
 function playerTurn() {
-  
+  while(true) {
+    console.log("hit or stay?");
+    let answer = readline.question();
+    if (answer === 'stay' || isBust()) break;
+  }
 }
 
 function computerTurn() {
-  
+  let total = calculateTotal();
+  while(true) {
+    dealerDraw();
+  }
 }
 
 function hit(participant) {
@@ -125,41 +134,36 @@ while (true) {
   let winner = null;
   greetPlayer();
   initializeDeck();
-  shuffle()
-  dealCards();
 
-  playerTurn();
+  while (true) {
 
-  if (isBust(playerHand)) {
-    winner = 'Computer';
-  }
+  
+    dealCards();
 
-  computerTurn();
+    playerTurn();
 
-  if (isBust(computerHand)) {
-    winner = 'Player';
-  }
+    computerTurn();
 
-  if (!winner) {
     winner = findWinner();
-  }
 
-  prompt(`${winner} won the round!`)
+    prompt(`${winner} won the round!`);
+
+    break;
+    
+  }
   
   prompt("Would you like to play again? (y/n)");
 
-  let answer = readline.question().toLowerCase();
+    let answer = readline.question().toLowerCase();
 
-  while (answer !== 'y' && answer !== 'n') {
-    prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.");
-    answer = readline.question().toLowerCase();
-  }
+    while (answer !== 'y' && answer !== 'n') {
+      prompt("Invalid response. Please choose 'y' to continue or 'n' to quit.");
+      answer = readline.question().toLowerCase();
+    }
 
-  if (answer !== 'y') {
-    break;
-  }
-  
-
+    if (answer !== 'y') {
+      break;
+    }
 }
 
 
