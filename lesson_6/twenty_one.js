@@ -5,15 +5,19 @@ const SUITS = ['H', 'S', 'D', 'C'];
 const INITIAL_HAND_SIZE = 2;
 const DEALER_LIMIT = 17;
 const BUST_LIMIT = 21;
+const FACE_VALUE = 10;
+const ACE_VALUE = [11, 1];
 
 let deck = [];
 let playerHand =  {
   'cards': [],
-  'total': 0
+  'total': 0,
+  'hasAce': false
 };
 let dealerHand = {
   'cards': [],
-  'total': 0
+  'total': 0,
+  'hasAce': false
 }
 
 function initializeDeck() {
@@ -24,11 +28,25 @@ function initializeDeck() {
   })
 }
 
-function totalHands(hand){
-  if (hand.total === 0) {
-    hand.cards.forEach(c => {
-      
-    })
+function calculateTotal(hand){
+  let total = 0;
+  hand.cards.forEach(c => {
+    cardValue = calculateCardValue();
+    total += cardValue;
+  })
+
+  hand.total = total;
+}
+
+function calculateCardValue(card) {
+  if (isNan(Number(card))) {
+    if (card.includes('K', 'Q', 'J')) {
+      return FACE_VALUE;
+    }
+
+    else {
+      return ACE_VALUE;
+    }
   }
 }
 
