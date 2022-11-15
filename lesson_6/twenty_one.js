@@ -6,7 +6,7 @@ const INITIAL_HAND_SIZE = 2;
 const DEALER_LIMIT = 17;
 const BUST_LIMIT = 21;
 const FACE_VALUE = 10;
-const ACE_VALUE = [11, 1];
+const ACE_VALUE = 11;
 
 let deck = [];
 let playerHand =  {
@@ -28,14 +28,30 @@ function initializeDeck() {
   })
 }
 
+function checkAce(hand, cardValue) {
+  if (cardValue === 11) {
+    hand.hasAce = true;
+  }
+}
+
 function calculateTotal(hand){
   let total = 0;
   hand.cards.forEach(c => {
     cardValue = calculateCardValue();
+    checkAce(hand, cardValue);
     total += cardValue;
   })
 
+  if (total > BUST_LIMIT && hand.hasAce === true) {
+    
+  }
+
   hand.total = total;
+
+}
+
+function adjustAce(hand) {
+  
 }
 
 function calculateCardValue(card) {
@@ -48,6 +64,8 @@ function calculateCardValue(card) {
       return ACE_VALUE;
     }
   }
+
+  return Number(card);
 }
 
 
