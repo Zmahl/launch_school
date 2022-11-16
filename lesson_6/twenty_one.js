@@ -7,17 +7,16 @@ const DEALER_LIMIT = 17;
 const BUST_LIMIT = 21;
 const FACE_VALUE = 10;
 const ACE_VALUE = 11;
+const CHANGE_ACE_VALUE = 10;
 
 let deck = [];
 let playerHand =  {
   'cards': [],
-  'total': 0,
-  'hasAce': false
+  'total': 0
 };
 let dealerHand = {
   'cards': [],
-  'total': 0,
-  'hasAce': false
+  'total': 0
 }
 
 function initializeDeck() {
@@ -28,46 +27,37 @@ function initializeDeck() {
   })
 }
 
-function checkAce(hand, cardValue) {
-  if (cardValue === 11) {
-    hand.hasAce = true;
-  }
-}
-
 function calculateTotal(hand){
   let total = 0;
-  hand.cards.forEach(c => {
-    cardValue = calculateCardValue();
-    checkAce(hand, cardValue);
-    total += cardValue;
+  let cardValues = hand.cards.map((card) => card.number);
+
+  cardValues.forEach((number) => {
+    if (number === 'A') {
+      total += ACE_VALUE;
+    }
+    else if (['J', 'Q', 'K'].includes(number)) {
+      total += FACE_VALUE;
+    }
+    else {
+      total += Number(number);
+    }
   })
 
-  if (total > BUST_LIMIT && hand.hasAce === true) {
-    
-  }
+  // Check for bust limit aces
+  cardValues
+  .filter((number) => value === 'A')
+  .forEach((_) => {
+    if (total > BUST_LIMIT) {
+      sum -= CHANGE_ACE_VALUE;
+    }
+  });
 
-  hand.total = total;
-
+  return total;
 }
 
 function adjustAce(hand) {
   
 }
-
-function calculateCardValue(card) {
-  if (isNan(Number(card))) {
-    if (card.includes('K', 'Q', 'J')) {
-      return FACE_VALUE;
-    }
-
-    else {
-      return ACE_VALUE;
-    }
-  }
-
-  return Number(card);
-}
-
 
 function prompt(message) {
   console.log(`==>${message}`);
