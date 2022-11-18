@@ -55,8 +55,36 @@ function calculateTotal(hand){
   return total;
 }
 
-function adjustAce(hand) {
+function playerTurn() {
+  let answer;
+  while (true) {
+    answer = readline.question();
+    prompt("Would you like to hit or stay? (h/s)");
+    while (answer.toLowerCase() !== 'h' || answer.toLowerCase() !== 's') {
+      prompt("You need to choose either 'h' to hit, or 's' to stay")
+      answer = readline.question();
+    }
+
+    if (answer.toLowerCase() === 's') {
+      break;
+    }
+
+    //Draw a card
+    let newCard = drawCard(playerHand);
+    playerHand.card.push(newCard);
+    calculateTotal(playerHand)
+    if (bust(playerHand)) {
+      break;
+    }
+  }
   
+}
+
+function computerTurn() {
+  calculateTotal(computerHand);
+  while(computerHand.total < BUST_LIMIT) {
+    
+  }
 }
 
 function prompt(message) {
@@ -97,6 +125,7 @@ while (true) {
   console.log(playerHand);
   console.log(dealerHand);
   playerTurn();
+  computerTurn();
   break;
   //TODO Player turn: hit or stay(if player bust, dealer wins)
   //TODO Dealer turn: hit or stay(repeat until total >= 17)
