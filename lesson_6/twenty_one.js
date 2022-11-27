@@ -49,7 +49,7 @@ function calculateTotal(hand){
   .filter((number) => number === 'A')
   .forEach((_) => {
     if (total > BUST_LIMIT) {
-      sum -= CHANGE_ACE_VALUE;
+      total -= CHANGE_ACE_VALUE;
     }
   });
 
@@ -59,15 +59,15 @@ function calculateTotal(hand){
 function playerTurn() {
 
   while (playerHand.total < BUST_LIMIT) {
-    console.log(playerHand);
+    prompt("Current Hand: ")
+    displayHand(playerHand);
     prompt("Would you like to hit or stay? (h/s)");
     let answer = readline.question().toLowerCase();
     if (answer === 'h') {
       //Draw a card
       let newCard = drawCard(playerHand);
-      console.log(newCard);
       playerHand.cards.push(newCard);
-      calculateTotal(playerHand)
+      calculateTotal(playerHand);
     }
 
     if (answer.toLowerCase() === 's') {
@@ -79,26 +79,38 @@ function playerTurn() {
     }
   }
 
-  
-
   if (playerHand.total === BUST_LIMIT) {
     prompt(`You have ${BUST_LIMIT}!`)
   }
+
+  prompt("Final Hand: ")
+  displayHand(playerHand);
   
 }
 
 function dealerTurn() {
+  prompt("Dealer Current Hand: ");
+  displayHand(dealerHand);
   while(dealerHand.total < DEALER_LIMIT) {
     let newCard = drawCard();
     dealerHand.cards.push(newCard);
     calculateTotal(dealerHand);
   }
+  prompt("Dealer Final Hand: ")
+  displayHand(dealerHand);
+}
 
-  console.log(dealerHand.cards);
+function displayHand(hand) {
+  if (hand === playerHand) {
+    console.log(playerHand.cards);
+  }
+  else {
+    console.log(['facedown'].concat(dealerHand.cards.slice(1)));
+  }
 }
 
 function prompt(message) {
-  console.log(`==>${message}`);
+  console.log(`==> ${message}`);
 }
 
 function shuffle() {
@@ -160,14 +172,11 @@ while (true) {
   shuffle();
   prepareHands();
   playerTurn();
-  console.log('here');
   dealerTurn();
   checkWinner();
-  //If dealer busts, player wins
-  //Compare cards and declare winner(compare total)
   break;
 
 }
 
-console.log('bye bye');
+console.log("Thanks for playing 21!");
 
