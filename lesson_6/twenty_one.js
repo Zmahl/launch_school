@@ -11,100 +11,91 @@ const CHANGE_ACE_VALUE = 10;
 
 let deck = [];
 let playerHand =  {
-  'cards': [],
-  'total': 0
+  cards: [],
+  total: 0
 };
 
 let dealerHand = {
-  'cards': [],
-  'total': 0
+  cards: [],
+  total: 0
 };
 
 function initializeDeck() {
-  CARDS.forEach(c => {
-    SUITS.forEach(s => {
-      deck.push({'suit': s, 'number': c});
-    })
-  })
+  CARDS.forEach(card => {
+    SUITS.forEach(suit => {
+      deck.push({suit: suit, number: card});
+    });
+  });
 }
 
-function calculateTotal(hand){
+function calculateTotal(hand) {
   let total = 0;
   let cardValues = hand.cards.map((card) => card.number);
 
   cardValues.forEach((number) => {
     if (number === 'A') {
       total += ACE_VALUE;
-    }
-    else if (['J', 'Q', 'K'].includes(number)) {
+    } else if (['J', 'Q', 'K'].includes(number)) {
       total += FACE_VALUE;
-    }
-    else {
+    } else {
       total += Number(number);
-    }
-  })
-
-  // Check for bust limit aces
-  cardValues
-  .filter((number) => number === 'A')
-  .forEach((_) => {
-    if (total > BUST_LIMIT) {
-      total -= CHANGE_ACE_VALUE;
     }
   });
 
-  return hand.total = total;
+  cardValues
+    .filter((number) => number === 'A')
+    .forEach((_) => {
+      if (total > BUST_LIMIT) total -= CHANGE_ACE_VALUE;
+    });
+
+  hand.total = total;
 }
 
 function playerTurn() {
 
   while (playerHand.total < BUST_LIMIT) {
-    prompt("Current Hand: ")
+    prompt("Current Hand: ");
     displayHand(playerHand);
     prompt("Would you like to hit or stay? (h/s)");
     let answer = readline.question().toLowerCase();
-    if (answer === 'h') {
-      //Draw a card
-      let newCard = drawCard(playerHand);
-      playerHand.cards.push(newCard);
-      calculateTotal(playerHand);
-    }
+    if (answer === 'h') drawAndCalculate(playerHand);
 
-    if (answer.toLowerCase() === 's') {
-      break;
-    }
+    if (answer.toLowerCase() === 's') break;
 
     else {
       prompt("Please choose either 'h' to hit or 's' to stay");
     }
-  }
 
-  if (playerHand.total === BUST_LIMIT) {
-    prompt(`You have ${BUST_LIMIT}!`)
-  }
+    if (playerHand.total === BUST_LIMIT) {
+      prompt(`You have ${BUST_LIMIT}!`);
+    }
 
-  prompt("Final Hand: ")
-  displayHand(playerHand);
-  
+    prompt("Final Hand: ");
+    displayHand(playerHand);
+  }
+}
+
+function drawAndCalculate(hand) {
+  let newCard = drawCard();
+  hand.cards.push(newCard);
+  calculateTotal(hand);
 }
 
 function dealerTurn() {
   prompt("Dealer Current Hand: ");
   displayHand(dealerHand);
-  while(dealerHand.total < DEALER_LIMIT) {
-    let newCard = drawCard();
-    dealerHand.cards.push(newCard);
-    calculateTotal(dealerHand);
+  while (dealerHand.total < DEALER_LIMIT) {
+    drawAndCalculate(dealerHand);
   }
-  prompt("Dealer Final Hand: ")
+  prompt("Dealer Final Hand: ");
   displayHand(dealerHand);
 }
 
 function displayHand(hand) {
+  prompt("Current Hand: ");
   if (hand === playerHand) {
     console.log(playerHand.cards);
-  }
-  else {
+  } else {
     console.log(['facedown'].concat(dealerHand.cards.slice(1)));
   }
 }
@@ -121,7 +112,7 @@ function shuffle() {
 }
 
 function prepareHands() {
-  for (let i = 0; i < INITIAL_HAND_SIZE; i++) {
+  for (let index = 0; index < INITIAL_HAND_SIZE; index++) {
     playerHand.cards.push(drawCard());
     dealerHand.cards.push(drawCard());
   }
@@ -141,25 +132,16 @@ function bust(player) {
 function checkWinner() {
   if (bust(playerHand)) {
     displayWinner('Dealer');
-  }
-
-  else if (bust(dealerHand)) {
+  } else if (bust(dealerHand)) {
     displayWinner('Player');
+  } else if (dealerHand.total > playerHand.total) {
+    displayWinner('Dealer');
+  } else if (playerHand.total > dealerHand.total) {
+    displayWinner('Player');
+  } else {
+    prompt("It's a tie!");
   }
 
-  else {
-    if (dealerHand.total > playerHand.total) {
-      displayWinner('Dealer');
-    }
-    else if (playerHand.total > dealerHand.total) {
-      displayWinner('Player');
-    }
-
-    else {
-      prompt("It's a tie!");
-    }
-  }
-  return;
 
 }
 
@@ -179,4 +161,3 @@ while (true) {
 }
 
 console.log("Thanks for playing 21!");
-
