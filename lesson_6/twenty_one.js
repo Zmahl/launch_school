@@ -14,10 +14,11 @@ let playerHand =  {
   'cards': [],
   'total': 0
 };
+
 let dealerHand = {
   'cards': [],
   'total': 0
-}
+};
 
 function initializeDeck() {
   CARDS.forEach(c => {
@@ -45,46 +46,55 @@ function calculateTotal(hand){
 
   // Check for bust limit aces
   cardValues
-  .filter((number) => value === 'A')
+  .filter((number) => number === 'A')
   .forEach((_) => {
     if (total > BUST_LIMIT) {
       sum -= CHANGE_ACE_VALUE;
     }
   });
 
-  return total;
+  return hand.total = total;
 }
 
 function playerTurn() {
-  let answer;
-  while (true) {
-    answer = readline.question();
+
+  while (playerHand.total < BUST_LIMIT) {
+    console.log(playerHand);
     prompt("Would you like to hit or stay? (h/s)");
-    while (answer.toLowerCase() !== 'h' || answer.toLowerCase() !== 's') {
-      prompt("You need to choose either 'h' to hit, or 's' to stay")
-      answer = readline.question();
+    let answer = readline.question().toLowerCase();
+    if (answer === 'h') {
+      //Draw a card
+      let newCard = drawCard(playerHand);
+      console.log(newCard);
+      playerHand.cards.push(newCard);
+      calculateTotal(playerHand)
     }
 
     if (answer.toLowerCase() === 's') {
       break;
     }
 
-    //Draw a card
-    let newCard = drawCard(playerHand);
-    playerHand.card.push(newCard);
-    calculateTotal(playerHand)
-    if (bust(playerHand)) {
-      break;
+    else {
+      prompt("Please choose either 'h' to hit or 's' to stay");
     }
+  }
+
+  
+
+  if (playerHand.total === BUST_LIMIT) {
+    prompt(`You have ${BUST_LIMIT}!`)
   }
   
 }
 
-function computerTurn() {
-  calculateTotal(computerHand);
-  while(computerHand.total < BUST_LIMIT) {
-    
+function dealerTurn() {
+  while(dealerHand.total < DEALER_LIMIT) {
+    let newCard = drawCard();
+    dealerHand.cards.push(newCard);
+    calculateTotal(dealerHand);
   }
+
+  console.log(dealerHand.cards);
 }
 
 function prompt(message) {
@@ -116,21 +126,46 @@ function bust(player) {
   return player.total > BUST_LIMIT;
 }
 
+function checkWinner() {
+  if (bust(playerHand)) {
+    displayWinner('Dealer');
+  }
+
+  else if (bust(dealerHand)) {
+    displayWinner('Player');
+  }
+
+  else {
+    if (dealerHand.total > playerHand.total) {
+      displayWinner('Dealer');
+    }
+    else if (playerHand.total > dealerHand.total) {
+      displayWinner('Player');
+    }
+
+    else {
+      prompt("It's a tie!");
+    }
+  }
+  return;
+
+}
+
+function displayWinner(winner) {
+  prompt(`${winner} wins!`);
+}
+
 while (true) {
   initializeDeck();
-  console.log(deck);
   shuffle();
-  console.log(deck);
   prepareHands();
-  console.log(playerHand);
-  console.log(dealerHand);
   playerTurn();
-  computerTurn();
-  break;
-  //TODO Player turn: hit or stay(if player bust, dealer wins)
-  //TODO Dealer turn: hit or stay(repeat until total >= 17)
+  console.log('here');
+  dealerTurn();
+  checkWinner();
   //If dealer busts, player wins
   //Compare cards and declare winner(compare total)
+  break;
 
 }
 
