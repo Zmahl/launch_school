@@ -69,10 +69,9 @@ function playerTurn() {
     if (playerHand.total === BUST_LIMIT) {
       prompt(`You have ${BUST_LIMIT}!`);
     }
-
-    prompt("Final Hand: ");
-    displayHand(playerHand);
   }
+  prompt("Final Hand: ");
+  displayHand(playerHand);
 }
 
 function drawAndCalculate(hand) {
@@ -92,7 +91,6 @@ function dealerTurn() {
 }
 
 function displayHand(hand) {
-  prompt("Current Hand: ");
   if (hand === playerHand) {
     console.log(playerHand.cards);
   } else {
