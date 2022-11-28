@@ -20,6 +20,17 @@ let dealerHand = {
   total: 0
 };
 
+function prompt(message) {
+  console.log(`=> ${message}`);
+}
+
+function shuffle() {
+  for (let index = deck.length - 1; index > 0; index--) {
+    let otherIndex = Math.floor(Math.random() * (index + 1));
+    [deck[index], deck[otherIndex]] = [deck[otherIndex], deck[index]];
+  }
+}
+
 function initializeDeck() {
   CARDS.forEach(card => {
     SUITS.forEach(suit => {
@@ -51,6 +62,10 @@ function calculateTotal(hand) {
   hand.total = total;
 }
 
+function bust(player) {
+  return player.total > BUST_LIMIT;
+}
+
 function playerTurn() {
 
   while (playerHand.total < BUST_LIMIT) {
@@ -58,9 +73,9 @@ function playerTurn() {
     displayHand(playerHand);
     prompt("Would you like to hit or stay? (h/s)");
     let answer = readline.question().toLowerCase();
-    if (answer === 'h') drawAndCalculate(playerHand);
+    if (answer[0] === 'h') drawAndCalculate(playerHand);
 
-    if (answer.toLowerCase() === 's') break;
+    if (answer[0] === 's') break;
 
     else {
       prompt("Please choose either 'h' to hit or 's' to stay");
@@ -98,17 +113,6 @@ function displayHand(hand) {
   }
 }
 
-function prompt(message) {
-  console.log(`==> ${message}`);
-}
-
-function shuffle() {
-  for (let index = deck.length - 1; index > 0; index--) {
-    let otherIndex = Math.floor(Math.random() * (index + 1));
-    [deck[index], deck[otherIndex]] = [deck[otherIndex], deck[index]];
-  }
-}
-
 function prepareHands() {
   for (let index = 0; index < INITIAL_HAND_SIZE; index++) {
     playerHand.cards.push(drawCard());
@@ -123,8 +127,11 @@ function drawCard() {
   return deck.pop();
 }
 
-function bust(player) {
-  return player.total > BUST_LIMIT;
+function playAgain() {
+  console.log('-----------');
+  prompt('Do you want to play again? (y or n)');
+  let answer = readline.question();
+  return answer.toLowerCase()[0] === 'y';
 }
 
 function checkWinner() {
@@ -154,7 +161,8 @@ while (true) {
   playerTurn();
   dealerTurn();
   checkWinner();
-  break;
+  
+  if(!playAgain()) break;
 
 }
 
