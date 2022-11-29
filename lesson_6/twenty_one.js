@@ -1,6 +1,6 @@
 const readline = require("readline-sync");
 
-const CARDS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+const CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 const SUITS = ['H', 'S', 'D', 'C'];
 const INITIAL_HAND_SIZE = 2;
 const DEALER_LIMIT = 17;
@@ -9,16 +9,10 @@ const FACE_VALUE = 10;
 const ACE_VALUE = 11;
 const CHANGE_ACE_VALUE = 10;
 
-let deck = [];
-let playerHand =  {
-  cards: [],
-  total: 0
-};
-
-let dealerHand = {
-  cards: [],
-  total: 0
-};
+//Initialize deck and playerHand + dealerHand as globals
+let deck;
+let playerHand =  {};
+let dealerHand = {};
 
 function prompt(message) {
   console.log(`=> ${message}`);
@@ -32,6 +26,8 @@ function shuffle() {
 }
 
 function initializeDeck() {
+  //Will reset deck after each call game
+  deck = [];
   CARDS.forEach(card => {
     SUITS.forEach(suit => {
       deck.push({suit: suit, number: card});
@@ -68,7 +64,7 @@ function bust(player) {
 
 function playerTurn() {
 
-  while (playerHand.total < BUST_LIMIT) {
+  while (!bust(playerHand)) {
     prompt("Current Hand: ");
     displayHand(playerHand);
     prompt("Would you like to hit or stay? (h/s)");
@@ -83,6 +79,7 @@ function playerTurn() {
 
     if (playerHand.total === BUST_LIMIT) {
       prompt(`You have ${BUST_LIMIT}!`);
+      break;
     }
   }
   prompt("Final Hand: ");
@@ -105,12 +102,8 @@ function dealerTurn() {
   displayHand(dealerHand);
 }
 
-function displayHand(hand) {
-  if (hand === playerHand) {
-    console.log(playerHand.cards);
-  } else {
-    console.log(['facedown'].concat(dealerHand.cards.slice(1)));
-  }
+function displayHand(cards) {
+  return cards.map(card => `${card.number} of ${card.suit}`).join(', ');
 }
 
 function prepareHands() {
@@ -123,9 +116,17 @@ function prepareHands() {
   calculateTotal(dealerHand);
 }
 
+function displayInitialHands() {
+  prompt("Initial Player Hand: ")
+  displayHand(playerHand.cards);
+  prompt("Initial Dealer Hand: ");
+  displayHand('facedown, ' + (dealerHand.cards.slice(1)));
+}
+
 function drawCard() {
   return deck.pop();
 }
+
 
 function playAgain() {
   console.log('-----------');
@@ -146,24 +147,51 @@ function checkWinner() {
   } else {
     prompt("It's a tie!");
   }
+}
 
-
+function displayGreeting() {
+  prompt("Welcome to Twenty-One!");
+  prompt("Both the player and the dealer will start with 2 cards. The objective is to have a total of 21 points!");
+  prompt("When you are ready to play, press any key to continue...");
+  readline.keyIn();
 }
 
 function displayWinner(winner) {
   prompt(`${winner} wins!`);
 }
 
+function resetHands() {
+  playerHand.total = 0;
+  dealerHand.total = 0;
+
+  playerHand.cards = [];
+  dealerHand.cards = [];
+}
+
 while (true) {
+  
+  displayGreeting();
+  resetHands();
   initializeDeck();
   shuffle();
   prepareHands();
+  displayInitialHands();
   playerTurn();
-  dealerTurn();
+  if (!bust(playerHand)) {
+    dealerTurn();
+  }
+
+  // both player and dealer stays - compare cards!
+  console.clear();
+  console.log('==============');
+  prompt(`Dealer has ${displayHand(dealerHand.cards)}, for a total of: ${dealerHand.total}`);
+  prompt(`Player has ${displayHan(playerHand.cards)}, for a total of: ${playerHand.total}`);
+  console.log('==============');
   checkWinner();
   
   if(!playAgain()) break;
 
 }
 
-console.log("Thanks for playing 21!");
+console.clear();
+console.log("Thanks for playing Twenty-One!");
