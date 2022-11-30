@@ -117,10 +117,10 @@ function prepareHands() {
 }
 
 function displayInitialHands() {
-  prompt("Initial Player Hand: ")
-  displayHand(playerHand.cards);
-  prompt("Initial Dealer Hand: ");
-  displayHand('facedown, ' + (dealerHand.cards.slice(1)));
+  let playerCards = displayHand(playerHand.cards);
+  let dealerCards = 'facedown, ' + displayHand((dealerHand.cards.slice(1)));
+  prompt(`Initial Player Hand: ${playerCards}`);
+  prompt(`Initial Dealer Hand: ${dealerCards}`);
 }
 
 function drawCard() {
@@ -184,8 +184,8 @@ while (true) {
   // both player and dealer stays - compare cards!
   console.clear();
   console.log('==============');
-  prompt(`Dealer has ${displayHand(dealerHand.cards)}, for a total of: ${dealerHand.total}`);
-  prompt(`Player has ${displayHan(playerHand.cards)}, for a total of: ${playerHand.total}`);
+  console.log(`Dealer has ${displayHand(dealerHand)}, for a total of: ${dealerHand.total}`);
+  console.log(`Player has ${displayHand(playerHand)}, for a total of: ${playerHand.total}`);
   console.log('==============');
   checkWinner();
   
