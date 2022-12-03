@@ -1,7 +1,7 @@
 const readline = require("readline-sync");
 
 const CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-const SUITS = ['H', 'S', 'D', 'C'];
+const SUITS = ['Hearts', 'Spades', 'Diamonds', 'Clubs'];
 const INITIAL_HAND_SIZE = 2;
 const DEALER_LIMIT = 17;
 const BUST_LIMIT = 21;
@@ -65,8 +65,7 @@ function bust(player) {
 function playerTurn() {
 
   while (!bust(playerHand)) {
-    prompt("Current Hand: ");
-    displayHand(playerHand);
+    prompt(`Current Hand: ${displayHand(playerHand.cards)}`);
     prompt("Would you like to hit or stay? (h/s)");
     let answer = readline.question().toLowerCase();
     if (answer[0] === 'h') drawAndCalculate(playerHand);
@@ -82,8 +81,7 @@ function playerTurn() {
       break;
     }
   }
-  prompt("Final Hand: ");
-  displayHand(playerHand);
+  prompt(`Final Hand: ${displayHand(playerHand.cards)}`);
 }
 
 function drawAndCalculate(hand) {
@@ -93,13 +91,19 @@ function drawAndCalculate(hand) {
 }
 
 function dealerTurn() {
-  prompt("Dealer Current Hand: ");
-  displayHand(dealerHand);
+  prompt(`Dealer Current Hand: ${displayHand(dealerHand.cards)}`);
   while (dealerHand.total < DEALER_LIMIT) {
+    let dealerHandLength = dealerHand.cards.length;
     drawAndCalculate(dealerHand);
+    if (dealerHand.cards.length > dealerHandLength) {
+      prompt("Dealer Hit!");
+      prompt(`Dealer Current Hand: ${displayHand(dealerHand.cards)}`);
+      readline.keyIn('Press any button to continue...');
+    }
   }
-  prompt("Dealer Final Hand: ");
-  displayHand(dealerHand);
+  prompt("Dealer stays!");
+  prompt(`Dealer Final Hand: ${displayHand(dealerHand.cards)}`);
+  readline.keyIn();
 }
 
 function displayHand(cards) {
@@ -118,9 +122,13 @@ function prepareHands() {
 
 function displayInitialHands() {
   let playerCards = displayHand(playerHand.cards);
-  let dealerCards = 'facedown, ' + displayHand((dealerHand.cards.slice(1)));
+  let dealerCards = dealerHandInGame();
   prompt(`Initial Player Hand: ${playerCards}`);
   prompt(`Initial Dealer Hand: ${dealerCards}`);
+}
+
+function dealerHandInGame() {
+  return 'facedown, ' + displayHand((dealerHand.cards.slice(1)));
 }
 
 function drawCard() {
@@ -182,11 +190,10 @@ while (true) {
   }
 
   // both player and dealer stays - compare cards!
-  console.clear();
-  console.log('==============');
-  console.log(`Dealer has ${displayHand(dealerHand)}, for a total of: ${dealerHand.total}`);
-  console.log(`Player has ${displayHand(playerHand)}, for a total of: ${playerHand.total}`);
-  console.log('==============');
+  console.log();
+  console.log(`Dealer has ${displayHand(dealerHand.cards)}, for a total of: ${dealerHand.total}`);
+  console.log();
+  console.log(`Player has ${displayHand(playerHand.cards)}, for a total of: ${playerHand.total}`);
   checkWinner();
   
   if(!playAgain()) break;
