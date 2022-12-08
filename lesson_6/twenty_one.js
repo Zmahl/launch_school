@@ -104,9 +104,11 @@ function dealerTurn() {
       readline.keyIn('Press any button to continue...');
     }
   }
-  prompt("Dealer stays!");
+  if (dealerHand.total > DEALER_LIMIT) prompt('Dealer busts!');
+  else prompt("Dealer stays!");
+
   prompt(`Dealer Final Hand: ${displayHand(dealerHand)}`);
-  readline.keyIn();
+  readline.keyIn('Press any button to continue...');
 }
 
 function displayHand(hand) {
@@ -131,7 +133,7 @@ function displayInitialHands() {
 }
 
 function dealerHandInGame() {
-  return 'facedown, ' + displayHand((dealerHand));
+  return 'facedown, ' + displayHand((dealerHand)).split(', ').slice(1);
 }
 
 function drawCard() {
@@ -172,8 +174,17 @@ function displayGreeting() {
   readline.keyIn();
 }
 
+function displayScore() {
+  prompt(`Player Score: ${playerScore}, Dealer Score: ${dealerScore}`);
+}
+
 function displayWinner(winner) {
   prompt(`${winner} wins!`);
+}
+
+function compareSetScore() {
+  if (playerScore > dealerScore) prompt("Player wins the set!");
+  else prompt("Dealer wins the set!");
 }
 
 function resetHands() {
@@ -184,32 +195,46 @@ function resetHands() {
   dealerHand.cards = [];
 }
 
-while (playerScore < WIN_MATCH || dealerScore < WIN_MATCH) {
+function displaySetWinner() {
+  console.clear();
+  compareSetScore();
+  readline.keyIn("To continue press any button...");
+  console.clear();
+}
 
-while (true) {
-  
-  displayGreeting();
-  resetHands();
-  initializeDeck();
-  shuffle();
-  prepareHands();
-  displayInitialHands();
-  playerTurn();
-  if (!bust(playerHand)) {
-    dealerTurn();
-  }
-
+function compareFinalHands() {
   // both player and dealer stays - compare cards!
   console.log();
   console.log(`Dealer has ${displayHand(dealerHand)}, for a total of: ${dealerHand.total}`);
   console.log();
   console.log(`Player has ${displayHand(playerHand)}, for a total of: ${playerHand.total}`);
-  checkWinner();
-  
-  if(!playAgain()) break;
-
-  }
 }
 
-console.clear();
-console.log("Thanks for playing Twenty-One!");
+function runGame() {
+  playGame();
+  while (playAgain()) {
+    playGame();
+  }
+  console.log("Thanks for playing Twenty-One!");
+}
+
+function playGame() {
+  while (playerScore < WIN_MATCH || dealerScore < WIN_MATCH) {
+    displayGreeting();
+    resetHands();
+    initializeDeck();
+    shuffle();
+    prepareHands();
+    displayScore();
+    displayInitialHands();
+    playerTurn();
+    if (!bust(playerHand)) {
+      dealerTurn();
+    }
+    compareFinalHands();
+    checkWinner();
+  }
+  displaySetWinner();
+}
+
+runGame();
