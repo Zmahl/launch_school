@@ -8,22 +8,16 @@ function minimumSum(arr) {
     return null;
   }
   let min;
-  for (let i = 0; i < arr.length; i++) {
+  for (let i = 4; i < arr.length; i++) {
     let sum = 0;
-    let count = 0;
-    for (let j = i; j < 5; j++) {
-      if (i + j > arr.length) {
-        break;
-      }
+    for (let j = i - 4; j <= i; j++) {
       sum += arr[j];
-      count += 1;
     }
 
-    if ((min === undefined || sum < min) && count === 5) {
+    if (min === undefined || sum < min) {
       min = sum;
     }
   }
-  console.log(min);
   return min;
 }
 
