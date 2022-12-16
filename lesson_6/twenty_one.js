@@ -4,7 +4,7 @@ const CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 const SUITS = ['Hearts', 'Spades', 'Diamonds', 'Clubs'];
 const INITIAL_HAND_SIZE = 2;
 const DEALER_LIMIT = 17;
-const BUST_LIMIT = 21;
+const MAX_VALUE = 21;
 const FACE_VALUE = 10;
 const ACE_VALUE = 11;
 const CHANGE_ACE_VALUE = 10;
@@ -38,7 +38,7 @@ function initializeDeck() {
   });
 }
 
-function calculateTotal(hand) {
+function updateTotal(hand) {
   let total = 0;
   let cardValues = hand.cards.map((card) => card.number);
 
@@ -55,42 +55,46 @@ function calculateTotal(hand) {
   cardValues
     .filter((number) => number === 'A')
     .forEach((_) => {
-      if (total > BUST_LIMIT) total -= CHANGE_ACE_VALUE;
+      if (total > MAX_VALUE) total -= CHANGE_ACE_VALUE;
     });
 
   hand.total = total;
 }
 
 function bust(player) {
-  return player.total > BUST_LIMIT;
+  return player.total > MAX_VALUE;
 }
 
 function playerTurn() {
 
   while (!bust(playerHand)) {
     prompt(`Current Hand: ${displayHand(playerHand)}`);
-    prompt("Would you like to hit or stay? (h/s)");
-    let answer = readline.question().toLowerCase();
-    if (answer[0] === 'h') drawAndCalculate(playerHand);
+    prompt("Would you like to hit or stay? ('h'/'s')");
+    let answer = readline.question().toLowerCase().trim();
+    if (answer === 'h' || answer === 'hit') drawAndCalculate(playerHand);
 
-    if (answer[0] === 's') break;
+    if (answer === 's' || answer === 'stay') break;
 
     else {
-      prompt("Please choose either 'h' to hit or 's' to stay");
+      prompt("Please choose either 'h'/'hit' or 's'/'stay'");
     }
+    console.log();
 
-    if (playerHand.total === BUST_LIMIT) {
-      prompt(`You have ${BUST_LIMIT}!`);
+    if (playerHand.total === MAX_VALUE) {
+      prompt(`You have ${MAX_VALUE}!`);
       break;
     }
   }
+  console.clear();
   prompt(`Final Hand: ${displayHand(playerHand)}`);
+  console.log();
+  readline.question("Press any button to continue...")
 }
 
 function drawAndCalculate(hand) {
   let newCard = drawCard();
   hand.cards.push(newCard);
-  calculateTotal(hand);
+  updateTotal(hand);
 }
 
 function dealerTurn() {
@@ -101,14 +105,15 @@ function dealerTurn() {
     if (dealerHand.cards.length > dealerHandLength) {
       prompt("Dealer Hit!");
       prompt(`Dealer Current Hand: ${displayHand(dealerHand)}`);
-      readline.keyIn('Press any button to continue...');
+      readline.question('Press any button to continue...');
     }
   }
   if (dealerHand.total > DEALER_LIMIT) prompt('Dealer busts!');
   else prompt("Dealer stays!");
 
   prompt(`Dealer Final Hand: ${displayHand(dealerHand)}`);
-  readline.keyIn('Press any button to continue...');
+  console.log();
+  readline.question('Press any button to continue...');
 }
 
 function displayHand(hand) {
@@ -121,8 +126,8 @@ function prepareHands() {
     dealerHand.cards.push(drawCard());
   }
 
-  calculateTotal(playerHand);
-  calculateTotal(dealerHand);
+  updateTotal(playerHand);
+  updateTotal(dealerHand);
 }
 
 function displayInitialHands() {
@@ -165,13 +170,14 @@ function checkWinner() {
     prompt("It's a push! Dealer wins");
     dealerScore += 1;
   }
+  readline.question("Press any button to continue...")
 }
 
 function displayGreeting() {
   prompt("Welcome to Twenty-One!");
   prompt("Both the player and the dealer will start with 2 cards. The objective is to have a total of 21 points!");
   prompt("When you are ready to play, press any key to continue...");
-  readline.keyIn();
+  readline.question();
 }
 
 function displayScore() {
@@ -198,19 +204,20 @@ function resetHands() {
 function displaySetWinner() {
   console.clear();
   compareSetScore();
-  readline.keyIn("To continue press any button...");
+  readline.question("To continue press any button...");
   console.clear();
 }
 
 function compareFinalHands() {
   // both player and dealer stays - compare cards!
   console.log();
-  console.log(`Dealer has ${displayHand(dealerHand)}, for a total of: ${dealerHand.total}`);
-  console.log();
-  console.log(`Player has ${displayHand(playerHand)}, for a total of: ${playerHand.total}`);
+  prompt(`Dealer has ${displayHand(dealerHand)}, for a total of: ${dealerHand.total}`);
+  prompt(`Player has ${displayHand(playerHand)}, for a total of: ${playerHand.total}`);
+  console.log()
 }
 
 function runGame() {
+  displayGreeting();
   playGame();
   while (playAgain()) {
     playGame();
@@ -220,7 +227,7 @@ function runGame() {
 
 function playGame() {
   while (playerScore < WIN_MATCH || dealerScore < WIN_MATCH) {
-    displayGreeting();
+    console.clear();
     resetHands();
     initializeDeck();
     shuffle();
