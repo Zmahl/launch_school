@@ -3,8 +3,22 @@
 // value.
 
 function closestNumbers(arr) {
-  let result = [];
-  let 
+  let result;
+  let min;
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = 0; j < arr.length; j++) {
+      if (i === j) {
+        continue;
+      }
+      let sum = Math.abs(arr[i] - arr[j]);
+
+      if (min === undefined || sum < min) {
+        result = [arr[i], arr[j]];
+        min = sum;
+      }
+    }
+  }
+  return result;
 }
 
 
