@@ -13,7 +13,6 @@ function createPlayer() {
 }
 
 function createHuman(validChoices) {
-
   let playerObject = createPlayer();
 
   let humanObject = {
@@ -23,7 +22,7 @@ function createHuman(validChoices) {
         prompt('Please choose rock, paper, scissors, lizard or spock');
         choice = readline.question();
         // 3 options given to the player
-        if (validChoices.includes(choice)) break;
+        if (this.validChoices.includes(choice)) break;
         prompt('Sorry, invalid choice.');
       }
 
@@ -38,14 +37,43 @@ function createComputer(validChoices) {
   let playerObject = createPlayer();
   let computerObject = {
     //how computer will skew it's index to beat what the player is picking
-    weight: {},
-    choose() {
-      let randomIndex = Math.floor(Math.random() * validChoices.length);
-      this.move = validChoices[randomIndex];
-    },
-    adjustWeight(humanChoices) {
+    weights: {},
+    STARTING_WEIGHT: 10,
+    ADJUST_WEIGHT_AMOUNT: 1,
 
-    }
+    resetWeights(humanChoices) {
+      const choices = Object.values(humanChoices);
+
+      choices.forEach(choice => {
+        this.weights[choice] = this.STARTING_WEIGHT;
+      });
+    },
+
+    adjustWeights(winner) {
+      if (winner === 'human') {
+        this.weights[this.move] -= this.ADJUST_WEIGHT_AMOUNT;
+      }
+    },
+
+    choose() {
+      const totalWeight = Object.values(this.weights)
+        .reduce((acc, sum) => acc + sum, 0);
+
+      let weightThreshold = Math.floor(Math.random() * totalWeight);
+
+      let total = 0;
+      const entries = Object.entries(this.weights);
+
+      for (let i = 0; i < entries.length; i++) {
+        const [ choice, weight ] = entries[i];
+        total += weight;
+
+        if (weightThreshold <= total) {
+          this.move = choice;
+          return;
+        }
+      }
+    },
   };
 
   return Object.assign(playerObject, computerObject);
@@ -59,7 +87,7 @@ const RPSGame = {
     lizard: ['paper', 'spock'],
     spock: ['rock', 'scissors']
   },
-  CHOICES : ['rock', 'paper', 'scissors', 'lizard', 'spock'],
+  CHOICES: ['rock', 'paper', 'scissors', 'lizard', 'spock'],
   WINNING_ROUNDS: 5,
   human: createHuman(this.CHOICES),
   computer: createComputer(this.CHOICES),
@@ -91,7 +119,7 @@ const RPSGame = {
     this.updatePlayerScore();
     this.displayScore();
     this.updateMoveHistory();
-    this.adjustComputerChoice();
+    this.adjustWeights(this.roundWinner);
     readline.question("Press any button to go to continue...");
     this.clearScreen();
   },
@@ -99,6 +127,7 @@ const RPSGame = {
   play() {
     this.displayWelcomeMessage();
     while (this.human.score <= this.WINNING_ROUNDS || this.computer.score <= this.WINNING_ROUNDS) {
+      this.computer.resetWeights(this.CHOICES);
       this.playGame();
       if (this.human.score === this.WINNING_ROUNDS || this.computer.score === this.WINNING_ROUNDS){
         if (this.playAgain()) {
@@ -141,7 +170,7 @@ const RPSGame = {
   resetGame() {
     this.human.score = 0;
     this.computer.score = 0;
-    this.computer.weight = [];
+    this.computer.weights = [];
   },
 
   clearScreen() {
@@ -155,7 +184,7 @@ const RPSGame = {
   },
 
   compare (humanMove, copmuterMove) {
-    if (this.WINNING_COMBOS[humanMove].includes(copmuterMove)) {
+    if (this.WINNING_COMBOS[humanMove].includes(computerMove)) {
       return "Player";
     }
     else if (this.WINNING_COMBOS[copmuterMove].includes(humanMove)) {
@@ -165,8 +194,8 @@ const RPSGame = {
   },
 
   adjustComputerChoice() {
-    this.computer.weight.push(this.human.move);
-    console.log(this.computer.weight);
+    this.computer.weights.push(this.human.move);
+    console.log(this.computer.weights);
   },
 
   updateMoveHistory() {
@@ -183,5 +212,6 @@ const RPSGame = {
   }
   
 };
+
 RPSGame.play();
 
