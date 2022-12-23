@@ -12,17 +12,17 @@ function createPlayer() {
   };
 }
 
-function createHuman(validChoices) {
+function createHuman() {
   let playerObject = createPlayer();
 
   let humanObject = {
-    choose() {
+    choose(validChoices) {
       let choice;
       while (true) {
         prompt('Please choose rock, paper, scissors, lizard or spock');
         choice = readline.question();
         // 3 options given to the player
-        if (this.validChoices.includes(choice)) break;
+        if (validChoices.includes(choice)) break;
         prompt('Sorry, invalid choice.');
       }
 
@@ -33,7 +33,7 @@ function createHuman(validChoices) {
   return Object.assign(playerObject, humanObject);
 }
 
-function createComputer(validChoices) {
+function createComputer() {
   let playerObject = createPlayer();
   let computerObject = {
     //how computer will skew it's index to beat what the player is picking
@@ -89,8 +89,8 @@ const RPSGame = {
   },
   CHOICES: ['rock', 'paper', 'scissors', 'lizard', 'spock'],
   WINNING_ROUNDS: 5,
-  human: createHuman(this.CHOICES),
-  computer: createComputer(this.CHOICES),
+  human: createHuman(),
+  computer: createComputer(),
   roundWinner: null,
 
   displayWelcomeMessage() {
@@ -113,13 +113,14 @@ const RPSGame = {
   playGame() {
     this.displayScore();
     this.displayMoveHistory();
-    this.human.choose();
+    //For some reason this syntax will pass the right values to the choose function
+    this.human.choose(this.CHOICES);
     this.computer.choose();
     this.displayWinner();
     this.updatePlayerScore();
     this.displayScore();
     this.updateMoveHistory();
-    this.adjustWeights(this.roundWinner);
+    this.computer.adjustWeights(this.roundWinner);
     readline.question("Press any button to go to continue...");
     this.clearScreen();
   },
@@ -133,6 +134,7 @@ const RPSGame = {
         if (this.playAgain()) {
           resetGame();
         }
+        else break;
       }
 
     }
@@ -183,11 +185,11 @@ const RPSGame = {
     console.log();
   },
 
-  compare (humanMove, copmuterMove) {
+  compare (humanMove, computerMove) {
     if (this.WINNING_COMBOS[humanMove].includes(computerMove)) {
       return "Player";
     }
-    else if (this.WINNING_COMBOS[copmuterMove].includes(humanMove)) {
+    else if (this.WINNING_COMBOS[computerMove].includes(humanMove)) {
       return "Computer";
     }
     else return "Tie";
