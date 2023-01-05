@@ -1,29 +1,25 @@
 const readline = require('readline-sync');
 
-function prompt(message) {
-  console.log(`==> ${message}`);
-}
-
 function createPlayer() {
   return {
     move: null,
     score: 0,
-    pastChoices: [],
   };
 }
 
 function createHuman() {
+
   let playerObject = createPlayer();
 
   let humanObject = {
-    choose(validChoices) {
+    choose() {
       let choice;
       while (true) {
-        prompt('Please choose rock, paper, scissors, lizard or spock');
+        console.log('Please choose rock, paper, or scissors');
         choice = readline.question();
         // 3 options given to the player
-        if (validChoices.includes(choice)) break;
-        prompt('Sorry, invalid choice.');
+        if (['rock', 'paper', 'scissors'].includes(choice)) break;
+        console.log('Sorry, invalid choice.');
       }
 
       this.move = choice;
@@ -36,105 +32,69 @@ function createHuman() {
 function createComputer() {
   let playerObject = createPlayer();
   let computerObject = {
-    //how computer will skew it's index to beat what the player is picking
-    weights: {},
-    STARTING_WEIGHT: 10,
-    ADJUST_WEIGHT_AMOUNT: 1,
-
-    resetWeights(humanChoices) {
-      const choices = Object.values(humanChoices);
-
-      choices.forEach(choice => {
-        this.weights[choice] = this.STARTING_WEIGHT;
-      });
-    },
-
-    adjustWeights(winner) {
-      if (winner === 'human') {
-        this.weights[this.move] -= this.ADJUST_WEIGHT_AMOUNT;
-      }
-    },
-
     choose() {
-      const totalWeight = Object.values(this.weights)
-        .reduce((acc, sum) => acc + sum, 0);
-
-      let weightThreshold = Math.floor(Math.random() * totalWeight);
-
-      let total = 0;
-      const entries = Object.entries(this.weights);
-
-      for (let i = 0; i < entries.length; i++) {
-        const [ choice, weight ] = entries[i];
-        total += weight;
-
-        if (weightThreshold <= total) {
-          this.move = choice;
-          return;
-        }
-      }
-    },
+      const choices = ['rock', 'paper', 'scissors'];
+      let randomIndex = Math.floor(Math.random() * choices.length);
+      this.move = choices[randomIndex];
+    }
   };
 
   return Object.assign(playerObject, computerObject);
 }
 
+function createMove() {
+  return {
+    // possible state: type of move (paper, rock scissors)
+  };
+}
+
+function createRule() {
+  return {
+    // possible state? not clear whether Rules need state
+  };
+}
+
+//not sure where to put compare, so we define as ordinary function
+
+let compare = function(move1, move2) {
+  // not yet implemented
+};
+
 const RPSGame = {
-  WINNING_COMBOS : {
-    rock: ['scissors', 'lizard'],
-    paper: ['rock', 'spock'],
-    scissors: ['paper', 'lizard'],
-    lizard: ['paper', 'spock'],
-    spock: ['rock', 'scissors']
-  },
-  CHOICES: ['rock', 'paper', 'scissors', 'lizard', 'spock'],
-  WINNING_ROUNDS: 5,
   human: createHuman(),
   computer: createComputer(),
   roundWinner: null,
 
   displayWelcomeMessage() {
-    prompt("Welcome to Rock, Paper, Scissors!");
-    prompt(`The Player and the Computer will play a first to ${this.WINNING_ROUNDS} set of Rock, Paper, Scissors!`);
-    readline.question("Press any key to play...");
-    console.clear();
+    console.log("Welcome to Rock, Paper, Scissors!");
   },
 
   displayGoodbyeMessage() {
-    prompt("Thanks for playing Rock, Paper, Scissors. Goodbye!");
+    console.log("Thanks for playing Rock, Paper, Scissors. Goodbye!");
   },
 
   playAgain() {
-    prompt("Would you like to play again? (y/n)");
+    console.log("Would you like to play again? (y/n)");
     let answer = readline.question();
     return answer.toLowerCase()[0] === 'y';
   },
 
   playGame() {
-    this.displayScore();
-    this.displayMoveHistory();
-    //For some reason this syntax will pass the right values to the choose function
-    this.human.choose(this.CHOICES);
+    this.human.choose();
     this.computer.choose();
     this.displayWinner();
     this.updatePlayerScore();
-    this.displayScore();
-    this.updateMoveHistory();
-    this.computer.adjustWeights(this.roundWinner);
-    readline.question("Press any button to go to continue...");
-    this.clearScreen();
   },
 
   play() {
+    const WINNING_ROUNDS = 5;
     this.displayWelcomeMessage();
-    while (this.human.score <= this.WINNING_ROUNDS || this.computer.score <= this.WINNING_ROUNDS) {
-      this.computer.resetWeights(this.CHOICES);
+    while (this.human.score <= WINNING_ROUNDS || this.computer.score <= WINNING_ROUNDS) {
       this.playGame();
-      if (this.human.score === this.WINNING_ROUNDS || this.computer.score === this.WINNING_ROUNDS){
+      if (this.human.score === WINNING_ROUNDS || this.computer.score === WINNING_ROUNDS){
         if (this.playAgain()) {
           resetGame();
         }
-        else break;
       }
 
     }
@@ -145,19 +105,22 @@ const RPSGame = {
     let humanMove = this.human.move;
     let computerMove = this.computer.move;
 
-    prompt(`You chose: ${humanMove}`);
-    prompt(`The computer chose: ${computerMove}`);
-    let result = this.compare(humanMove, computerMove);
+    console.log(`You chose: ${this.human.move}`);
+    console.log(`The computer chose: ${this.computer.move}`);
 
-    if (result === 'Player') {
-        prompt('You win!');
+    if ((humanMove === 'rock' && computerMove === 'scissors') ||
+        (humanMove === 'paper;' && computerMove === 'rock') ||
+        (humanMove === 'scissors' && computerMove === 'rock')) {
+        console.log('You win!');
         this.roundWinner = "player";
-    } else if (result === 'Computer') {
-        prompt('Computer wins!');
-        this.roundWinner = "computer";
+    } else if ((humanMove === 'rock' && computerMove === 'paper') ||
+             (humanMove === 'paper' && computerMove === 'scissors') ||
+             (humanMove === 'scissors' && computerMove === 'rock')) {
+      console.log('Computer wins!');
+      this.roundWinner = "computer";
     } else {
-        prompt("It's a tie");
-        this.roundWinner = "tie";
+      console.log("It's a tie");
+      this.roundWinner = "tie";
     }
   },
 
@@ -172,48 +135,8 @@ const RPSGame = {
   resetGame() {
     this.human.score = 0;
     this.computer.score = 0;
-    this.computer.weights = [];
-  },
-
-  clearScreen() {
-    console.clear();
-  },
-
-  displayScore() {
-    prompt(`Player Score: ${this.human.score}`);
-    prompt(`Computer Score: ${this.computer.score}`);
-    console.log();
-  },
-
-  compare (humanMove, computerMove) {
-    if (this.WINNING_COMBOS[humanMove].includes(computerMove)) {
-      return "Player";
-    }
-    else if (this.WINNING_COMBOS[computerMove].includes(humanMove)) {
-      return "Computer";
-    }
-    else return "Tie";
-  },
-
-  adjustComputerChoice() {
-    this.computer.weights.push(this.human.move);
-    console.log(this.computer.weights);
-  },
-
-  updateMoveHistory() {
-    this.human.pastChoices.push(this.human.move);
-    this.computer.pastChoices.push(this.computer.move);
-  },
-
-  displayMoveHistory() {
-    if (this.human.pastChoices.length > 0) {
-      prompt(`The player has used these moves -> ${this.human.pastChoices.join(' ')}`);
-      prompt(`The computer has used these moves -> ${this.computer.pastChoices.join(' ')}`)
-      console.log();
-    }
   }
-  
 };
-
+debugger;
 RPSGame.play();
 
