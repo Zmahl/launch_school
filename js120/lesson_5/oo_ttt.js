@@ -1,3 +1,5 @@
+let readline = require('readline-sync');
+
 class Square {
   //Static properties are just properties that belong to the class
   static UNUSED_SQUARE = " ";
@@ -11,13 +13,24 @@ class Square {
   toString() {
     return `${this.marker}`;
   }
+  isUnused() {
+    return this.marker === Square.UNUSED_SQUARE;
+  }
+
+  setMarker(marker) {
+    this.marker = marker;
+  }
 }
+//If static not supported, declare this way
+//Square.prototype.UNUSED_SQUARE = " ";
+//Square.prototype.HUMAN_MARKER = "X";
+//Square.prototype.COMPUTER_MARKER = "O";
 
 class Board {
   constructor() {
     this.squares = {};
     for (let counter = 1; counter <= 9; ++counter) {
-      this.squared[String(counter)] = new Square();
+      this.squares[String(counter)] = new Square();
     }
   }
 
@@ -36,6 +49,15 @@ class Board {
     console.log("     |     |");
     console.log("");
   }
+
+  markSquareAt(key, marker) {
+    this.squares[key].setMarker(marker);
+  }
+  //Will be used to print all unused squares within the board
+  unusedSquares() {
+    let keys = Object.keys(this.squares);
+    return keys.filter(key => this.squares[key].isUnused());
+  }
 }
 
 class Row {
@@ -45,41 +67,25 @@ class Row {
   }
 }
 
-class Marker {
-  constructor() {
-    //STUB
-    // A marker is something that represents a player's "piece" on the board.
-  }
-}
-
 class Player {
-  constructor() {
-    //STUB
-    // maybe a "marker" to keep track of this player's symbol (i.e., 'X' or 'O')
+  constructor(marker) {
+    this.marker = marker;
   }
 
-  mark() {
-    //STUB
-    // We need a way to mark the board with this player's marker.
-    // How do we access the board?
-  }
-
-  play() {
-    //STUB
-    // We need a way for each player to play the game.
-    // Do we need access to the board?
+  getMarker() {
+    return this.marker;
   }
 }
 
 class Human extends Player {
   constructor() {
-    //STUB
+    super(Square.HUMAN_MARKER);
   }
 }
 
 class Computer extends Player {
   constructor() {
-    //STUB
+    super(Square.COMPUTER_MARKER);
   }
 }
 
@@ -87,6 +93,8 @@ class TTTGame {
   // omitted code
   constructor() {
     this.board = new Board();
+    this.human = new Human();
+    this.computer = new Computer();
   }
 
   play() {
@@ -96,12 +104,11 @@ class TTTGame {
     while (true) {
       this.board.display();
 
-      this.firstPlayerMoves();
+      this.humanMoves();
       if (this.gameOver()) break;
 
-      this.secondPlayerMoves();
+      this.computerMoves();
       if (this.gameOver()) break;
-      break;
     }
 
     this.displayResults();
@@ -109,12 +116,40 @@ class TTTGame {
     
   }
 
+  humanMoves() {
+    let choice;
+
+    while (true) {
+      let validChoices = this.board.unusedSquares();
+      const prompt = `Choose a square (${validChoices.join(", ")}): `;
+      choice = readline.question(prompt);
+
+      if (validChoices.includes(choice)) break;
+
+      console.log("Sorry, that's not a valid choice.");
+      console.log("");
+    }
+    this.board.markSquareAt(choice, this.human.getMarker());
+  }
+
+  // mark the selected square with the human's marker
+
+  computerMoves() {
+    let validChoices = this.board.unusedSquares();
+    let choice;
+    do {
+      choice = Math.floor((9 * Math.random()) + 1).toString();
+    } while (!validChoices.includes(choice));
+
+    this.board.markSquareAt(choice, this.computer.getMarker());
+  }
+
   displayWelcomeMessage() {
     console.log("Welcome to Tic Tac Toe!");
   }
 
   displayGoodbyeMessage() {
-    console.log("Thanks for playing TIc Tac Toe! Goodbye!");
+    console.log("Thanks for playing Tic Tac Toe! Goodbye!");
   }
 
   displayResults() {
