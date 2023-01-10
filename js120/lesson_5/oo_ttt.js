@@ -13,12 +13,17 @@ class Square {
   toString() {
     return `${this.marker}`;
   }
+
   isUnused() {
     return this.marker === Square.UNUSED_SQUARE;
   }
 
   setMarker(marker) {
     this.marker = marker;
+  }
+
+  getMarker() {
+    return this.marker;
   }
 }
 //If static not supported, declare this way
@@ -50,6 +55,13 @@ class Board {
     console.log("");
   }
 
+  displayWithClear() {
+    console.clear();
+    console.log("");
+    console.log("");
+    this.display();
+  }
+
   markSquareAt(key, marker) {
     this.squares[key].setMarker(marker);
   }
@@ -58,12 +70,17 @@ class Board {
     let keys = Object.keys(this.squares);
     return keys.filter(key => this.squares[key].isUnused());
   }
-}
+    
+  IsFull() {
+    return this.unusedSquares().length === 0;
+  }
 
-class Row {
-  constructor() {
-    //STUB
-    // We need some way to identify a row of 3 squares
+  countMarkersFor(player, keys) {
+    let markers = keys.filter(key => {
+      return this.squares[key].getMarker() === player.getMarker();
+    });
+
+    return markers.length;
   }
 }
 
@@ -90,7 +107,17 @@ class Computer extends Player {
 }
 
 class TTTGame {
-  // omitted code
+  // Displays all relevant winning combinations
+  static POSSIBLE_WINNING_ROWS = [
+    [ "1", "2", "3" ],            // top row of board
+    [ "4", "5", "6" ],            // center row of board
+    [ "7", "8", "9" ],            // bottom row of board
+    [ "1", "4", "7" ],            // left column of board
+    [ "2", "5", "8" ],            // middle column of board
+    [ "3", "6", "9" ],            // right column of board
+    [ "1", "5", "9" ],            // diagonal: top-left to bottom-right
+    [ "3", "5", "7" ],            // diagonal: bottom-left to top-right
+  ];
   constructor() {
     this.board = new Board();
     this.human = new Human();
@@ -101,14 +128,16 @@ class TTTGame {
     //SPIKE
     this.displayWelcomeMessage();
 
+    this.board.display();
     while (true) {
-      this.board.display();
 
       this.humanMoves();
       if (this.gameOver()) break;
 
       this.computerMoves();
       if (this.gameOver()) break;
+      
+      this.board.displayWithClear();
     }
 
     this.displayResults();
@@ -145,7 +174,9 @@ class TTTGame {
   }
 
   displayWelcomeMessage() {
+    console.clear();
     console.log("Welcome to Tic Tac Toe!");
+    console.log("");
   }
 
   displayGoodbyeMessage() {
@@ -156,8 +187,6 @@ class TTTGame {
     //STUB
     // show the results of this game (win, lose, tie)
   }
-
-
 
   firstPlayerMoves() {
     //STUB
@@ -170,10 +199,28 @@ class TTTGame {
   }
 
   gameOver() {
-    //STUB
-    return false;
+    return this.board.IsFull() || this.someoneWon();
   }
-}
+
+  someoneWon() {
+    //Some will return true if 1+ conditions are true
+    return this.isWinner(this.human) || this.isWinner(this.computer); 
+  }
+
+  displayResults() {
+    if (this.isWinner(this.human)) {
+      console.log("You won! Congratulations!");
+    } else if (this.isWinner(this.computer)) {
+      console.log("I won! I won! Take that, human!");
+    } else console.log("A tie game. How boring.");
+  }
+
+  isWinner(player) {
+    return TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
+      return this.board.countMarkersFor(player, row) === 3;
+    });
+  }
+} 
 
 
 let game = new TTTGame();
