@@ -33,6 +33,10 @@ class Square {
 
 class Board {
   constructor() {
+    this.reset();
+  }
+
+  reset() {
     this.squares = {};
     for (let counter = 1; counter <= 9; ++counter) {
       this.squares[String(counter)] = new Square();
@@ -118,6 +122,7 @@ class TTTGame {
     [ "1", "5", "9" ],            // diagonal: top-left to bottom-right
     [ "3", "5", "7" ],            // diagonal: bottom-left to top-right
   ];
+
   constructor() {
     this.board = new Board();
     this.human = new Human();
@@ -125,10 +130,23 @@ class TTTGame {
   }
 
   play() {
-    //SPIKE
     this.displayWelcomeMessage();
 
+    while(true) {
+      this.playOneGame();
+      if (!this.playAgain()) break;
+
+      console.log("Let's play again!");
+    }
+
+    this.displayGoodbyeMessage();
+  }
+
+
+  playOneGame() {
+    this.board.reset();
     this.board.display();
+
     while (true) {
 
       this.humanMoves();
@@ -150,7 +168,7 @@ class TTTGame {
 
     while (true) {
       let validChoices = this.board.unusedSquares();
-      const prompt = `Choose a square (${validChoices.join(", ")}): `;
+      const prompt = `Choose a square (${this.joinOr(validChoices)}): `;
       choice = readline.question(prompt);
 
       if (validChoices.includes(choice)) break;
@@ -166,9 +184,22 @@ class TTTGame {
   computerMoves() {
     let validChoices = this.board.unusedSquares();
     let choice;
-    do {
-      choice = Math.floor((9 * Math.random()) + 1).toString();
-    } while (!validChoices.includes(choice));
+    let defenseSquare = this.computerDefendWin();
+    let attackSquare = this.computerAttack();
+
+    if (attackSquare !== undefined) {
+      choice = attackSquare;
+    } 
+    
+    else if (defenseSquare !== undefined) {
+      choice = defenseSquare;
+    }
+
+    else {
+        do {
+        choice = Math.floor((9 * Math.random()) + 1).toString();
+      } while (!validChoices.includes(choice));
+    }
 
     this.board.markSquareAt(choice, this.computer.getMarker());
   }
@@ -220,7 +251,80 @@ class TTTGame {
       return this.board.countMarkersFor(player, row) === 3;
     });
   }
-} 
+
+  joinOr(array) {
+    if (array.length === 1) {
+      return String(array[0]);
+    }
+
+    let str = "";
+    for (let i = 0; i < array.length - 2; i++){
+      str += `${array[i]}, `;
+    }
+
+    str += `${array[array.length - 2]}` + ' or ' + `${array[array.length - 1]}`;
+
+    return str;
+  }
+
+  playAgain() {
+    let answer;
+
+    while(true) {
+      answer = readline.question("Play again (y/n)? ").toLowerCase();
+
+      if(["y", "n"].includes(answer)) break;
+      console.log("Sorry, that's not a valid choice.");
+      console.log("");
+    }
+
+    console.clear();
+    return answer === 'y';
+  }
+
+  computerDefendWin() {
+    let pickedSquare;
+    let potentialWinningRow;
+
+    let isDefendSquare = TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
+      potentialWinningRow = row;
+      return (this.board.countMarkersFor(this.human, row) == 2) && this.board.countMarkersFor(this.computer, row) === 0;
+    });
+
+    if (isDefendSquare) {
+      for (let i = 0; i < potentialWinningRow.length; i++) {
+        if (this.board.squares[potentialWinningRow[i]].getMarker() === Square.UNUSED_SQUARE) {
+          pickedSquare = potentialWinningRow[i]
+          break;
+        }
+      }
+    }
+    //Use methods to return proper value instead of Square object
+    return pickedSquare;
+  }
+
+  computerAttack() {
+    let pickedSquare;
+    let potentialWinningRow;
+
+    let isAttackSquare = TTTGame.POSSIBLE_WINNING_ROWS.some(row => {
+      potentialWinningRow = row;
+      return (this.board.countMarkersFor(this.computer, row) == 2) && this.board.countMarkersFor(this.human, row) === 0;
+    });
+
+    if (isAttackSquare) {
+      for (let i = 0; i < potentialWinningRow.length; i++) {
+        if (this.board.squares[potentialWinningRow[i]].getMarker() === Square.UNUSED_SQUARE) {
+          pickedSquare = potentialWinningRow[i]
+          break;
+        }
+      }
+    }
+    //Use methods to return proper value instead of Square object
+    return pickedSquare;
+  }
+
+}
 
 
 let game = new TTTGame();
