@@ -27,13 +27,14 @@ class Deck {
     })
   }
 
-  shuffleDeck() {
-    
-  }
-
   deal() {
     //STUB
     // does the dealer or the deck deal?
+    let index = () => Math.floor(Math.random() * this.cards.length);
+
+    let drawnCard = this.deck.splice(index, 1);
+
+    return drawnCard;
   }
 }
 
@@ -43,17 +44,21 @@ class Participant {
     // What sort of state does a participant need?
     // Score? Hand? Amount of money available?
     // What else goes here? all the redundant behaviors from Player and Dealer?
+    this.reset();
+  }
+
+  reset() {
     this.cardTotal = 0;
     this.hand = {};
     this.bust = false;
   }
 
-  hit(player) {
-    Deck.addCard(player.hand);
+  hit() {
+    this.hand.push(Deck.deal());
   }
 
-  stay(player) {
-    console.log(`${typeof(player)} stays. The final hand is ${player.score}`);
+  stay() {
+    console.log(`${typeof(this)} stays. The final hand is ${this.score}`);
   }
 
   isBusted() {
@@ -65,8 +70,8 @@ class Participant {
     return this.bust;
   }
 
-  score() {
-    //STUB
+  score(newCard) {
+    this.score_+= newCard.rank;
   }
 }
 
@@ -90,22 +95,6 @@ class Dealer extends Participant {
     // What sort of state does a dealer need?
     // Score? Hand? Deck of cards? Bow tie?
     super();
-  }
-
-  hit() {
-    //STUB
-  }
-
-  stay() {
-    //STUB
-  }
-
-  isBusted() {
-    //STUB
-  }
-
-  score() {
-    //STUB
   }
 
   hide() {
