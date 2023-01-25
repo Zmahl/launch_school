@@ -214,7 +214,7 @@ class TwentyOneGame {
   dealerTurn() {
     //STUB
     this.scoreCards(this.dealer);
-    while (this.dealer.getScore() > TwentyOneGame.DEALER_LIMIT) {
+    while (this.dealer.getScore() < Dealer.DEALER_LIMIT && !this.dealer.isBusted(TwentyOneGame.BUST_LIMIT)) {
       this.dealer.hit(this.deck);
       this.scoreCards(this.dealer);
     }
@@ -246,8 +246,9 @@ class TwentyOneGame {
   }
 
   getWinner() {
-    if (this.player.isBusted) return "Dealer"
-    if (this.dealer.isBusted) return "Player"
+    console.log(this.dealer.isBusted(TwentyOneGame.BUST_LIMIT))
+    if (this.player.isBusted(TwentyOneGame.BUST_LIMIT)) return "Dealer"
+    if (this.dealer.isBusted(TwentyOneGame.BUST_LIMIT)) return "Player"
     if (this.player.getScore() > this.dealer.getScore()) return "Player";
     else return "Dealer";
   }
