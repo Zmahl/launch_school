@@ -35,6 +35,7 @@ class Dog extends Animal {
   greetMaster() {
     return `Hello ${this.master}! Woof, woof!`;
   }
+
 }
 
 let cat = new Cat("Pepe", 2, "happy");
