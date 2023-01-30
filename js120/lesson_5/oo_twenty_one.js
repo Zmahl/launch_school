@@ -3,7 +3,7 @@ const readline = require('readline-sync');
 class Card {
   static SUITS = ["Hearts", "Diamonds", "Spades", "Clubs"];
   static CARD_TYPES = ["2", "3", "4", "5", "6", "7", "8", "9", "10",
-                      "Jack", "Queen", "King", "Ace"];
+    "Jack", "Queen", "King", "Ace"];
 
   constructor(suit, rank) {
     //STUB
@@ -33,8 +33,8 @@ class Deck {
     Card.SUITS.forEach(suit => {
       Card.CARD_TYPES.forEach(rank => {
         this.cards.push(new Card(suit, rank));
-      })
-    })
+      });
+    });
   }
 
   deal() {
@@ -69,7 +69,7 @@ class Participant {
   }
 
   stay() {
-    console.log(`${typeof(this)} stays. The final hand is ${this.score}`);
+    console.log(`${typeof (this)} stays. The final hand is ${this.score}`);
   }
 
   isBusted(bustLimit) {
@@ -83,7 +83,7 @@ class Participant {
   setScore(cardTotal) {
     this.cardTotal = cardTotal;
   }
-  
+
   getScore() {
     return this.cardTotal;
   }
@@ -99,9 +99,12 @@ class Player extends Participant {
 
   displayHand() {
     let str = "";
-    for (let i = 0; i < this.hand.length; i++) {
-      if (i === 0) str += `${this.hand[i].getRank()} of ${this.hand[i].getSuit()}`
-      else str += `, ${this.hand[i].getRank()} of ${this.hand[i].getSuit()}`
+    for (let index = 0; index < this.hand.length; index++) {
+      if (index === 0) {
+        str += `${this.hand[index].getRank()} of ${this.hand[index].getSuit()}`;
+      } else {
+        str += `, ${this.hand[index].getRank()} of ${this.hand[index].getSuit()}`;
+      }
     }
     return str;
   }
@@ -118,7 +121,7 @@ class Dealer extends Participant {
 
   hide() {
     //STUB
-    return "Facedown"
+    return "Facedown";
   }
 
   reveal() {
@@ -127,17 +130,20 @@ class Dealer extends Participant {
 
   displayHand() {
     let str = this.hide();
-    for (let i = 1; i < this.hand.length; i++) {
-      str += `, ${this.hand[i].getRank()} of ${this.hand[i].getSuit()}`
+    for (let index = 1; index < this.hand.length; index++) {
+      str += `, ${this.hand[index].getRank()} of ${this.hand[index].getSuit()}`;
     }
     return str;
   }
 
   displayFinalHand() {
     let str = "";
-    for (let i = 0; i < this.hand.length; i++) {
-      if (i === 0) str += `${this.hand[i].getRank()} of ${this.hand[i].getSuit()}`
-      else str += `, ${this.hand[i].getRank()} of ${this.hand[i].getSuit()}`
+    for (let index = 0; index < this.hand.length; index++) {
+      if (index === 0) {
+        str += `${this.hand[index].getRank()} of ${this.hand[index].getSuit()}`;
+      } else {
+        str += `, ${this.hand[index].getRank()} of ${this.hand[index].getSuit()}`;
+      }
     }
     return str;
   }
@@ -167,20 +173,20 @@ class TwentyOneGame {
     this.dealCards();
     this.showCards();
     this.playerTurn();
-    if(!this.checkPlayerBust()) {
+    if (!this.checkPlayerBust()) {
       this.dealerTurn();
     }
     this.displayFinalHands();
     this.displayResult();
-    this.displayGoodbyeMessage();  
+    this.displayGoodbyeMessage();
   }
 
   dealCards() {
     //STUB
-    for (let i = 0; i < TwentyOneGame.STARTING_HAND_SIZE; i++) {
+    for (let index = 0; index < TwentyOneGame.STARTING_HAND_SIZE; index++) {
       this.player.hit(this.deck);
       this.dealer.hit(this.deck);
-    }  
+    }
   }
 
   showCards() {
@@ -188,7 +194,7 @@ class TwentyOneGame {
     console.log(`Player Starting Hand: ${this.player.displayHand()}`);
     console.log(`Dealer Starting Hand: ${this.dealer.displayHand()}`);
     console.log();
-    readline.question("Press any key to continue...")
+    readline.question("Press any key to continue...");
     console.clear();
   }
 
@@ -203,9 +209,7 @@ class TwentyOneGame {
       if (this.isPlayerHit(answer)) {
         this.player.hit(this.deck);
         this.scoreCards(this.player);
-      }
-
-      else break;
+      } else break;
     }
     this.displayEndOfTurn(this.player);
     readline.question("Press any key to continue...");
@@ -214,10 +218,14 @@ class TwentyOneGame {
   dealerTurn() {
     //STUB
     this.scoreCards(this.dealer);
-    while (this.dealer.getScore() < Dealer.DEALER_LIMIT && !this.dealer.isBusted(TwentyOneGame.BUST_LIMIT)) {
+    while (!this.dealerTurnOver()) {
       this.dealer.hit(this.deck);
       this.scoreCards(this.dealer);
     }
+  }
+
+  dealerTurnOver() {
+    return this.scoreCards(this.dealer) >= Dealer.DEALER_LIMIT;
   }
 
   displayWelcomeMessage() {
@@ -246,43 +254,43 @@ class TwentyOneGame {
   }
 
   getWinner() {
-    console.log(this.dealer.isBusted(TwentyOneGame.BUST_LIMIT))
-    if (this.player.isBusted(TwentyOneGame.BUST_LIMIT)) return "Dealer"
-    if (this.dealer.isBusted(TwentyOneGame.BUST_LIMIT)) return "Player"
+    if (this.player.isBusted(TwentyOneGame.BUST_LIMIT)) return "Dealer";
+    if (this.dealer.isBusted(TwentyOneGame.BUST_LIMIT)) return "Player";
     if (this.player.getScore() > this.dealer.getScore()) return "Player";
     else return "Dealer";
   }
 
   scoreCards(participant) {
-      let total = 0;
-      let cardValues = participant.hand.map((card) => card.rank);
-    
-      cardValues.forEach((rank) => {
-        if (rank === 'Ace') {
-          total += TwentyOneGame.ACE_VALUE;
-        } else if (['Jack', 'Queen', 'King'].includes(rank)) {
-          total += TwentyOneGame.FACE_VALUE;
-        } else {
-          total += Number(rank);
+    let total = 0;
+    let cardValues = participant.hand.map((card) => card.rank);
+
+    cardValues.forEach((rank) => {
+      if (rank === 'Ace') {
+        total += TwentyOneGame.ACE_VALUE;
+      } else if (['Jack', 'Queen', 'King'].includes(rank)) {
+        total += TwentyOneGame.FACE_VALUE;
+      } else {
+        total += Number(rank);
+      }
+    });
+
+    cardValues.filter((number) => number === 'A')
+      .forEach((_) => {
+        if (total > TwentyOneGame.BUST_LIMIT) {
+          total -= TwentyOneGame.CHANGE_ACE_VALUE;
         }
       });
-    
-      cardValues
-        .filter((number) => number === 'A')
-        .forEach((_) => {
-          if (total > TwentyOneGame.BUST_LIMIT) total -= TwentyOneGame.CHANGE_ACE_VALUE;
-        });
-    
-      participant.setScore(total);
+
+    participant.setScore(total);
   }
 
   isPlayerHit(answer) {
     //case for continuing players turn
     while (true) {
-      if (answer.toLowerCase()[0] === 'h') return true
+      if (answer.toLowerCase()[0] === 'h') return true;
       else if (answer.toLowerCase()[0] === 's') return false;
       else {
-        console.log("Not a valid response")
+        console.log("Not a valid response");
         answer = readline.question();
       }
     }
