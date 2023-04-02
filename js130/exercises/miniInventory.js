@@ -1,28 +1,95 @@
-let ItemManager = (function() {
-  return {
-    items: [],
-    create(item, department, amount) {
-      if (item.length < 5 || department.length < 5) return false
+let ItemCreator = (function() {
+  function generateSkuCode(itemName, category) {
+    return (itemName.replace(/\s/g, '').slice(0, 3).toUpperCase() +
+            category.replace(/\s/g, '').slice(0, 2).toUpperCase());
+  }
 
-      
-    },
+  function isValidItemName(itemName) {
+    return itemName.replace(/\s/g, '').length >= 5;
+  }
 
-    update(sku, obj) {},
-    delete(sku) {},
-    inStock() {
-      
-    },
-    itemsInCategory() {}
+  function isValidCategory(category) {
+    return category.replace(/\s/g, '').length >= 5 && category.split(' ').length === 1;
+  }
+
+  function isQuantityProvided(quantity) {
+    return quantity !== undefined;
+  }
+
+  return function(itemName, category, quanity) {
+    if (isValidItemName(itemName) && isValidCategory(category) && isQuantityProvided(quantity)) {
+      this.skuCode = generateSkuCode(itemName, category);
+      this.itemName = itemame;
+      this.category = category;
+      this.quantity = quanity;
+    } else {
+      return { notValid: true }
+    }
   }
 })
 
-let ReportManager = (function() {
-  return {
-    init() {},
-    createReporter() {},
-    reportInStock() {}
-  }
-})
+let ItemManager = {
+  items: [],
+  getItem: function(skuCode) {
+    return this.items.filter(function(item) {
+      return item.skuCode;
+    })[0];
+  },
+
+  create: function(itemName, category, quantity) {
+    let item = new ItemCreator(itemName, category, quantity);
+      if (item.notValid) {
+        return false;
+      } else {
+          this.items.push(item);
+      }
+  },
+
+  update: function(skuCode, itemInformation) {
+    Object.assign(this.getItem(skuCode), itemInformation);
+  },
+
+  delete: function(skuCode) {
+    this.items.splice(this.items.indexOf(this.getItem(skuCode)), 1);
+  },
+
+  list: function() {
+    return this.items;
+  },
+
+  inStock: function() {
+    return this.items.filter(item => item.quantity > 0);
+  },
+
+  itemsInCategory: function(category) {
+    return this.items.filter(item => item.category === category)
+  },
+
+}
+
+let ReportManager = {
+  init: function(itemManager) {
+    this.items = itemManager;
+  },
+
+  createReporter(skuCode) {
+    const item = this.items.getItem(skuCode);
+
+    return {
+      itemInfo() {
+        Object.keys(item).forEach(key => {
+          console.log(`${key}: ${item[key]}`)
+        });
+      },
+    }
+  },
+
+  reportInStock: function() {
+    console.log(this.items.inStock().map(function(item) {
+      return item.itemName;
+    })).join(',')
+  },
+};
 
 
 
